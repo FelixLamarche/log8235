@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "SDTUtils.h"
+#include  "PhysicsHelpers.h"
 
 #include "SDTAIController.generated.h"
 
@@ -19,14 +21,28 @@ public:
 
     virtual void Tick(float deltaTime) override;
 
-private:
-    void Move(APawn* pawn, FVector dir, float acceleration, float deltaTime);
-    void Rotate(APawn* pawn, FVector dir, float factor = 0.07f);
-
     UPROPERTY(VisibleAnywhere, Category = AI)
     FVector m_speed = FVector(0.0, 0.0, 0.0);
+    UPROPERTY(VisibleAnywhere, Category = AI)
+    float m_speed_value = 0.f;
     UPROPERTY(EditAnywhere, Category = AI)
-    double m_max_speed = 150.0;
+    float m_max_speed = 0.7f;
     UPROPERTY(EditAnywhere, Category = AI)
-    double m_acceleration = 100.0;
+    double m_max_acceleration = 1.5;
+    UPROPERTY(EditAnywhere, Category = AI)
+    double m_distance_vision = 350.0;
+    UPROPERTY(EditAnywhere, Category = AI)
+    double m_angle_vision = 15.f;
+
+private:
+    struct HitInfoWall
+    {
+        bool hitCenter = false;
+        bool hitLeft = false;
+        bool hitRight = false;
+        bool hitTooClose = false;
+    };
+    void Move(APawn* pawn, FVector dir, float acceleration, float deltaTime, float rotFactor = 0.007f);
+    bool DetectWall(APawn* pawn, float distance, HitInfoWall &hitInfo, PhysicsHelpers pHelper, bool debug = false);
+    void avoidTheWall(APawn* pawn, HitInfoWall hitInfo, float deltaTime);
 };
