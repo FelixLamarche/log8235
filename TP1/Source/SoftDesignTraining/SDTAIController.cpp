@@ -16,7 +16,7 @@ void ASDTAIController::Tick(float deltaTime)
 	HitInfoWall hitInfoW;
 	
 	// Detection d'un mur
-	if (DetectWall(pawn, m_distance_vision, hitInfoW, pHelper))
+	if (DetectWall(pawn, m_distance_vision, hitInfoW, pHelper, true))
 	{
 		// Evitement du mur
 		avoidTheWall(pawn, hitInfoW, deltaTime);

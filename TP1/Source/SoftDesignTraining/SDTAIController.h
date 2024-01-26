@@ -30,9 +30,9 @@ public:
     UPROPERTY(EditAnywhere, Category = AI)
     double m_max_acceleration = 1.5;
     UPROPERTY(EditAnywhere, Category = AI)
-    double m_distance_vision = 350.0;
+    double m_distance_vision = 400.0;
     UPROPERTY(EditAnywhere, Category = AI)
-    double m_angle_vision = 15.f;
+    double m_angle_vision = 25.0;
 
 private:
     struct HitInfoWall
