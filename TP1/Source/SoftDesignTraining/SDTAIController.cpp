@@ -2,7 +2,7 @@
 #include "SDTAIController.h"
 #include "SoftDesignTraining.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
-
+#include "SoftDesignTrainingMainCharacter.h"
 ASDTAIController::ASDTAIController()
 {
 }
@@ -11,8 +11,23 @@ void ASDTAIController::Tick(float deltaTime)
 {
 	APawn* pawn = GetPawn();
 	UWorld* world = GetWorld();
+	APawn* player = world->GetFirstPlayerController()->GetPawn();
+	// if player is of class SoftDesigntrainingMainCharacter, then we can cast it to this class
+	ASoftDesignTrainingMainCharacter* playerSDT = Cast<ASoftDesignTrainingMainCharacter>(player);
+
 	PhysicsHelpers pHelper(world);
 
+	bool isPoweredUp = playerSDT->IsPoweredUp();
+	// Debug
+	if (isPoweredUp)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Magenta, FString::Printf(TEXT("Actor : %s is %s"), *player->GetName(), TEXT("Powered UP")));
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Magenta, FString::Printf(TEXT("Actor : %s is %s"), *player->GetName(), TEXT("not Powered UP")));
+	}
+	// Fin Debug
 	HitInfoWall hitInfoW;
 	
 	// Detection d'un mur
@@ -21,9 +36,14 @@ void ASDTAIController::Tick(float deltaTime)
 		// Evitement du mur
 		avoidTheWall(pawn, hitInfoW, deltaTime);
 	}
+	else if (DetectPlayer(player, pawn, pHelper, true))
+	{
+		// Si on ne detecte pas de mur et qu'il y a un joueur, on le poursuit
+		Pursuite(player,world, pawn, pHelper, deltaTime);
+	}
 	else
 	{
-		// Si on ne detecte pas de mur, on accélère jusqu'à la vitesse max et on avance tout droit
+		// Si on ne detecte pas de mur et qu'il n'y a pas de joueur, on accélère jusqu'à la vitesse max et on avance tout droit
 		Move(pawn, pawn->GetActorForwardVector(),m_max_acceleration/2, deltaTime);
 	}
 }
@@ -98,4 +118,46 @@ void ASDTAIController::avoidTheWall(APawn* pawn, HitInfoWall hitInfo, float delt
 		newDir = pawn->GetActorRightVector();
 	}
 	Move(pawn, newDir,acceleration, deltaTime);
+}
+
+bool ASDTAIController::DetectPlayer(APawn *player,APawn* pawn, PhysicsHelpers pHelper, bool debug)
+{
+	bool detected = false;
+	// début Debug
+	TArray<FOverlapResult> hitResults;
+	pHelper.SphereOverlap(pawn->GetActorLocation() ,m_distance_vision, hitResults , true);
+	// fin Debug
+
+	if (FVector::Dist(pawn->GetActorLocation(), player->GetActorLocation()) > m_distance_vision)
+	{
+		return detected;
+	}
+
+	// If the player is detected
+	detected = true;
+	return detected;
+
+}
+
+void ASDTAIController::Pursuite(APawn*player, UWorld* world, APawn* pawn, PhysicsHelpers pHelper, float deltaTime)
+{
+	// TODO
+	FVector playerPos = player->GetActorLocation();
+	FVector pawnPos = pawn->GetActorLocation();
+
+	if (playerPos == pawnPos)
+	{
+		return;
+	}
+	FVector dir = (playerPos - pawnPos);
+	dir.Normalize(0.1f);
+	bool isPoweredUp = Cast<ASoftDesignTrainingMainCharacter>(player)->IsPoweredUp();
+
+
+	if (isPoweredUp)
+	{
+		dir = -dir;
+	}
+	pawn->SetActorRotation(dir.Rotation());
+	Move(pawn, dir, m_max_acceleration, deltaTime);
 }

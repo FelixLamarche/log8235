@@ -45,4 +45,6 @@ private:
     void Move(APawn* pawn, FVector dir, float acceleration, float deltaTime, float rotFactor = 0.007f);
     bool DetectWall(APawn* pawn, float distance, HitInfoWall &hitInfo, PhysicsHelpers pHelper, bool debug = false);
     void avoidTheWall(APawn* pawn, HitInfoWall hitInfo, float deltaTime);
+    bool DetectPlayer(APawn*player ,APawn* pawn, PhysicsHelpers pHelper, bool debug);
+    void Pursuite(APawn* player, UWorld* world, APawn* pawn, PhysicsHelpers pHelper, float deltaTime);
 };
