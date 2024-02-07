@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Engine/StaticMeshActor.h"
+#include "Sound/SoundCue.h"
 #include "SDTCollectible.generated.h"
+
 
 /**
  * 
@@ -19,6 +21,7 @@ public:
     void Collect();
     void OnCooldownDone();
     bool IsOnCooldown();
+    
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
     float m_CollectCooldownDuration = 10.f;
@@ -26,8 +29,18 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
         bool isMoveable = false;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Audio)
+        USoundCue* m_PickUpSoundCue = nullptr;
+
+    UPROPERTY(EditAnywhere, Category = Audio)
+        UAudioComponent* m_AudioComponent = nullptr;
+
+
+
     virtual void Tick(float deltaTime) override;
     virtual void BeginPlay() override;
+    // This function will be called whenever a property changes in the Blueprint
+    virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 
     FVector initialPosition;
 

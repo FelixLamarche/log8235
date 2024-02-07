@@ -6,6 +6,13 @@
 ASDTCollectible::ASDTCollectible()
 {
     PrimaryActorTick.bCanEverTick = true;
+
+    m_AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
+    m_AudioComponent->SetupAttachment(RootComponent);
+    if (m_PickUpSoundCue != nullptr)
+    {
+        m_AudioComponent->SetSound(m_PickUpSoundCue);
+    }
 }
 
 void ASDTCollectible::BeginPlay()
@@ -15,8 +22,12 @@ void ASDTCollectible::BeginPlay()
 
 void ASDTCollectible::Collect()
 {
-    GetWorld()->GetTimerManager().SetTimer(m_CollectCooldownTimer, this, &ASDTCollectible::OnCooldownDone, m_CollectCooldownDuration, false);
+    if (IsOnCooldown())
+        return;
 
+    GetWorld()->GetTimerManager().SetTimer(m_CollectCooldownTimer, this, &ASDTCollectible::OnCooldownDone, m_CollectCooldownDuration, false);
+    // Play pick up soundeffect
+    m_AudioComponent->Play();
     GetStaticMeshComponent()->SetVisibility(false);
 }
 
@@ -35,4 +46,17 @@ bool ASDTCollectible::IsOnCooldown()
 void ASDTCollectible::Tick(float deltaTime)
 {
     Super::Tick(deltaTime);
+}
+
+void ASDTCollectible::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+    Super::PostEditChangeProperty(PropertyChangedEvent);
+
+    FName PropertyName = (PropertyChangedEvent.Property != nullptr) ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+
+    // Check the property being changed
+    if (PropertyName == GET_MEMBER_NAME_CHECKED(ASDTCollectible, m_PickUpSoundCue))
+    {
+        m_AudioComponent->SetSound(m_PickUpSoundCue);
+    }
 }
