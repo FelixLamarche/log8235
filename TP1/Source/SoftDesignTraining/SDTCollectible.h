@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/StaticMeshActor.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
 #include "SDTCollectible.generated.h"
 
@@ -32,10 +33,14 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Audio)
         USoundCue* m_PickUpSoundCue = nullptr;
 
-    UPROPERTY(EditAnywhere, Category = Audio)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Audio)
         UAudioComponent* m_AudioComponent = nullptr;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FX")
+        UParticleSystem* m_ParticleSystem = nullptr;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FX")
+        UParticleSystemComponent* m_ParticleSystemComponent = nullptr;
 
     virtual void Tick(float deltaTime) override;
     virtual void BeginPlay() override;

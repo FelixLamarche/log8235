@@ -13,6 +13,11 @@ ASDTCollectible::ASDTCollectible()
     {
         m_AudioComponent->SetSound(m_PickUpSoundCue);
     }
+
+    m_ParticleSystemComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ParticleSystemComponent"));
+    m_ParticleSystemComponent->SetupAttachment(RootComponent);
+    m_ParticleSystemComponent->bAutoActivate = false;
+    m_ParticleSystemComponent->SetTemplate(m_ParticleSystem);
 }
 
 void ASDTCollectible::BeginPlay()
@@ -28,12 +33,15 @@ void ASDTCollectible::Collect()
     GetWorld()->GetTimerManager().SetTimer(m_CollectCooldownTimer, this, &ASDTCollectible::OnCooldownDone, m_CollectCooldownDuration, false);
     // Play pick up soundeffect
     m_AudioComponent->Play();
+    // Play VFX
+    m_ParticleSystemComponent->Activate();
     GetStaticMeshComponent()->SetVisibility(false);
 }
 
 void ASDTCollectible::OnCooldownDone()
 {
     GetWorld()->GetTimerManager().ClearTimer(m_CollectCooldownTimer);
+    m_ParticleSystemComponent->Deactivate();
 
     GetStaticMeshComponent()->SetVisibility(true);
 }
@@ -58,5 +66,9 @@ void ASDTCollectible::PostEditChangeProperty(FPropertyChangedEvent& PropertyChan
     if (PropertyName == GET_MEMBER_NAME_CHECKED(ASDTCollectible, m_PickUpSoundCue))
     {
         m_AudioComponent->SetSound(m_PickUpSoundCue);
+    }
+    else if (PropertyName == GET_MEMBER_NAME_CHECKED(ASDTCollectible, m_ParticleSystem))
+    {
+        m_ParticleSystemComponent->SetTemplate(m_ParticleSystem);
     }
 }
