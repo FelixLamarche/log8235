@@ -9,6 +9,7 @@ ASDTCollectible::ASDTCollectible()
 
     m_AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
     m_AudioComponent->SetupAttachment(RootComponent);
+    m_AudioComponent->bAutoActivate = false;
     if (m_PickUpSoundCue != nullptr)
     {
         m_AudioComponent->SetSound(m_PickUpSoundCue);
@@ -42,6 +43,7 @@ void ASDTCollectible::OnCooldownDone()
 {
     GetWorld()->GetTimerManager().ClearTimer(m_CollectCooldownTimer);
     m_ParticleSystemComponent->Deactivate();
+    m_AudioComponent->Stop();
 
     GetStaticMeshComponent()->SetVisibility(true);
 }
