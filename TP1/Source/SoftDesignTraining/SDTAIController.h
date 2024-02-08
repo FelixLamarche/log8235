@@ -5,8 +5,9 @@
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "SDTUtils.h"
-#include  "PhysicsHelpers.h"
+#include "PhysicsHelpers.h"
 #include "SoftDesignTrainingMainCharacter.h"
+#include "SDTCollectible.h"
 
 #include "SDTAIController.generated.h"
 
@@ -54,9 +55,16 @@ private:
     
     void Move(APawn* pawn, FVector dir, float acceleration, float deltaTime, float rotFactor = 0.01f);
     bool DetectWall(APawn* pawn, float distance, HitInfoWall &hitInfo, bool debug = false);
-    void avoidTheWall(APawn* pawn, HitInfoWall hitInfo, float deltaTime);
+    void AvoidTheWall(APawn* pawn, HitInfoWall hitInfo, float deltaTime);
+    void AvoidDeathFloor(APawn* pawn, TArray<FOverlapResult>& OverlapInfo, float deltaTime);
     bool DetectPlayer(UWorld* world ,APawn* pawn, bool debug);
+    ASDTCollectible* DetectCollectible(APawn* pawn, float distance, TArray<FOverlapResult>& OverlapInfo, UWorld* world, bool debug);
     void Pursuite(UWorld* world, APawn* pawn, float deltaTime);
-    bool DetectDeathFloor(APawn* pawn, float distance, UWorld* world, bool debug);
+    void MoveToCollectible(APawn* pawn, ASDTCollectible* collectible, float deltaTime);
+    bool DetectDeathFloor(APawn* pawn, float distance, TArray<FOverlapResult>& OverlapInfo, UWorld* world, bool debug);
+    bool SpherOverlap(FVector position, float radius, UWorld* world, TArray<FOverlapResult>& outOverlaps, bool debug);
+    void DrawDebugPrimitive(const UPrimitiveComponent& primitive, FColor color);
+    bool isInFrontOf(APawn* pawn, FVector targetPosition);
     ASoftDesignTrainingMainCharacter* GetPlayer(UWorld* world);
+    
 };
