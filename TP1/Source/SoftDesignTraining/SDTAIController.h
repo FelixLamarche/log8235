@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "SDTUtils.h"
 #include  "PhysicsHelpers.h"
+#include "SoftDesignTrainingMainCharacter.h"
 
 #include "SDTAIController.generated.h"
 
@@ -42,9 +43,20 @@ private:
         bool hitRight = false;
         bool hitTooClose = false;
     };
-    void Move(APawn* pawn, FVector dir, float acceleration, float deltaTime, float rotFactor = 0.007f);
-    bool DetectWall(APawn* pawn, float distance, HitInfoWall &hitInfo, PhysicsHelpers pHelper, bool debug = false);
+    
+    struct HitInfoDeathFloor
+    {
+        bool hitCenter = false;
+        bool hitLeft = false;
+        bool hitRight = false;
+        bool hitTooClose = false;
+    };
+    
+    void Move(APawn* pawn, FVector dir, float acceleration, float deltaTime, float rotFactor = 0.01f);
+    bool DetectWall(APawn* pawn, float distance, HitInfoWall &hitInfo, bool debug = false);
     void avoidTheWall(APawn* pawn, HitInfoWall hitInfo, float deltaTime);
-    bool DetectPlayer(APawn*player ,APawn* pawn, PhysicsHelpers pHelper, bool debug);
-    void Pursuite(APawn* player, UWorld* world, APawn* pawn, PhysicsHelpers pHelper, float deltaTime);
+    bool DetectPlayer(UWorld* world ,APawn* pawn, bool debug);
+    void Pursuite(UWorld* world, APawn* pawn, float deltaTime);
+    bool DetectDeathFloor(APawn* pawn, float distance, UWorld* world, bool debug);
+    ASoftDesignTrainingMainCharacter* GetPlayer(UWorld* world);
 };
