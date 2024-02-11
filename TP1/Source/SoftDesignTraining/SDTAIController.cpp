@@ -17,37 +17,39 @@ ASDTAIController::ASDTAIController()
 
 void ASDTAIController::Tick(float deltaTime)
 {
+	bool showDebug = false;
+	
 	APawn* pawn = GetPawn();
 	UWorld* world = GetWorld();
 
 	if (pawn == nullptr || world == nullptr)
 		return;
 	
-	bool isPoweredUp = SDTUtils::IsPlayerPoweredUp(world);
-	// Fin Debug
 	HitInfoWall hitInfoW;
 	TArray<FOverlapResult> overlapInfo;
 	ASDTCollectible* collectible;
 
 	// Detection d'un death floor
-	if (DetectDeathFloor(pawn, m_distance_vision, overlapInfo, world, true))
+	if (DetectDeathFloor(pawn, m_distance_vision, overlapInfo, world, showDebug))
 	{
 		// Evitement du death floor
 		AvoidDeathFloor(pawn, overlapInfo, deltaTime);
 	}
-	else if (DetectPlayer(world, pawn, true))
+	else if (DetectPlayer(world, pawn, showDebug))
 	{
 		// Si on ne detecte pas de death floor et qu'il y a un joueur, on le poursuit
 		Pursuite(world, pawn, deltaTime);
 	}
-	else if ( (collectible = DetectCollectible(pawn, m_distance_vision, overlapInfo, world, true)) != nullptr)
+	else if ( (collectible = DetectCollectible(pawn, m_distance_vision, overlapInfo, world, showDebug)) != nullptr)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.016f, FColor::Green, FString::Printf(TEXT("Collectible detected")));
+		// Debug
+		if (showDebug)
+			GEngine->AddOnScreenDebugMessage(-1, 0.016f, FColor::Green, FString::Printf(TEXT("Collectible detected")));
 		// Si on ne detecte pas de death floor et qu'il n'y a pas de joueur et qu'on detecte un bonus, on le ramasse
 		MoveToCollectible(pawn, collectible, deltaTime);
 		
 	}
-	else if (DetectWall(pawn, m_distance_vision, hitInfoW, true))
+	else if (DetectWall(pawn, m_distance_vision, hitInfoW, showDebug))
 	{
 		// Si on ne detecte pas de death floor, de joueur et de bonus et qu'on detecte un mur, on l'évite
 		AvoidTheWall(pawn, hitInfoW, deltaTime);
@@ -57,28 +59,6 @@ void ASDTAIController::Tick(float deltaTime)
 		// Si on ne detecte pas de death floor, de joueur, de bonus et de mur, on accélère jusqu'à la vitesse max et on avance tout droit
 		Move(pawn, pawn->GetActorForwardVector(), m_max_acceleration/2, deltaTime);
 	}
-	/*{
-		
-		// Detection d'un mur
-		if (DetectWall(pawn, m_distance_vision, hitInfoW, true))
-		{
-			// Evitement du mur
-			AvoidTheWall(pawn, hitInfoW, deltaTime);
-		}
-		if (DetectPlayer(world, pawn, true))
-		{
-			// Si on ne detecte pas de mur et qu'il y a un joueur, on le poursuit
-			Pursuite(world, pawn, deltaTime);
-		}
-		else
-		{
-			// Si on ne detecte pas de mur et qu'il n'y a pas de joueur, on accélère jusqu'à la vitesse max et on avance tout droit
-			
-		}
-	} else
-	{
-		Move(pawn, pawn->GetActorForwardVector(),m_max_acceleration/2, deltaTime);
-	}*/
 }
 
 void ASDTAIController::Move(APawn* pawn, FVector dir, float acceleration, float deltaTime, float rotFactor)
@@ -90,7 +70,7 @@ void ASDTAIController::Move(APawn* pawn, FVector dir, float acceleration, float 
 	m_speed = pawn->GetActorForwardVector() * m_speed_value;
 
 	// Déplacement
-	pawn->AddMovementInput(pawn->GetActorForwardVector().GetSafeNormal(), m_speed_value);
+	pawn->AddMovementInput(m_speed);
 
 	// Orientation progressive du personnage vers la direction du mouvement
 	const FRotator current_rot = pawn->GetActorRotation();
@@ -125,6 +105,7 @@ bool ASDTAIController::DetectWall(APawn* pawn, float distance, HitInfoWall &hitI
 	GEngine->AddOnScreenDebugMessage(-1, 0.016f, FColor::Green, FString::Printf(TEXT("Hit detected : Center %d  Left %d  Right %d"), hitInfo.hitCenter, hitInfo.hitLeft, hitInfo.hitRight));
 	}
 
+	// Retourne vrai si au moins un des rayons touche un mur
 	return hitInfo.hitCenter || hitInfo.hitLeft || hitInfo.hitRight || hitInfo.hitTooClose;	
 }
 
@@ -136,6 +117,7 @@ bool ASDTAIController::DetectDeathFloor(APawn* pawn, float distance, TArray<FOve
 	// Detection des death floors
 	for (int32 i = 0; i < OverlapInfo.Num(); ++i)
 	{
+		// Verification que l'acteur est bien un death floor
 		if (OverlapInfo[i].GetActor() && OverlapInfo[i].GetActor()->ActorHasTag(FName(TEXT("DeathFloor"))))
 		{
 			
@@ -207,7 +189,7 @@ ASDTCollectible* ASDTAIController::DetectCollectible(APawn* pawn, float distance
 void ASDTAIController::MoveToCollectible(APawn* pawn, ASDTCollectible* collectible, float deltaTime)
 {
 	FVector dir = (collectible->GetActorLocation() - pawn->GetActorLocation());
-	dir.Normalize(0.1f);
+	dir.GetSafeNormal();
 	Move(pawn, dir, m_max_acceleration, deltaTime, 0.05f);
 }
 
@@ -217,21 +199,21 @@ void ASDTAIController::AvoidTheWall(APawn* pawn, HitInfoWall hitInfo, float delt
 	if (hitInfo.hitTooClose)
 	{
 		// Si on a un mur trop proche, on recule
-		acceleration = m_speed_value > -0.2f ? -m_max_acceleration : 0.f;
+		acceleration = m_speed_value > -0.2f ? -m_max_acceleration : m_max_acceleration/3;
 	}
 	else if (hitInfo.hitCenter)
 	{
 		// Reduction la vitesse si on detecte un mur
-		acceleration = m_speed_value > 0.45f ? -m_max_acceleration : 0.f;
+		acceleration = m_speed_value > 0.45f ? -m_max_acceleration : m_max_acceleration/3;
 	}
 	else
 	{
-		// Reduction la vitesse si on detecte un mur
-		acceleration = m_speed_value > m_max_speed ? -m_max_acceleration : 0.f;
+		// Si il n'y a pas de mur devant, on accélère jusqu'à la vitesse max (cas d'un couloir par exemple)
+		acceleration = m_speed_value > m_max_speed ? -m_max_acceleration : m_max_acceleration/3;
 	}
 
 	//Debug
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Orange, FString::Printf(TEXT("Acceleration : %f - Speed %f"), acceleration, m_speed_value));
+	//GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Orange, FString::Printf(TEXT("Acceleration : %f - Speed %f"), acceleration, m_speed_value));
 
 	// Calcul de la nouvelle direction
 	FVector newDir = pawn->GetActorForwardVector();
@@ -246,6 +228,7 @@ void ASDTAIController::AvoidTheWall(APawn* pawn, HitInfoWall hitInfo, float delt
 	else if (hitInfo.hitTooClose)
 	{
 		// Si on a un mur trop proche et qu'auncun mur n'est détecté sur les cotés, on tourne à droite (par défaut)
+		// Cela évite de reste bloquer face a une arrête de mur
 		newDir = pawn->GetActorRightVector();
 	}
 	Move(pawn, newDir,acceleration, deltaTime);
@@ -263,13 +246,14 @@ void ASDTAIController::AvoidDeathFloor(APawn* pawn, TArray<FOverlapResult>& Over
 		}
 	}
 
+	// Si on a bien detecté un death floor
 	if (deathFloorPos != FVector::ZeroVector)
 	{
 		// On se dirige à l'opposé du death floor
 		FVector dir = (deathFloorPos - pawn->GetActorLocation());
-		dir.Normalize(0.1f);
+		dir.GetSafeNormal();
 		dir = -dir;
-		Move(pawn, dir, m_max_acceleration, deltaTime, 0.05f);
+		Move(pawn, dir, m_max_acceleration, deltaTime, 0.07f);
 	}
 }
 
@@ -308,19 +292,16 @@ void ASDTAIController::Pursuite(UWorld* world, APawn* pawn, float deltaTime)
 	FVector pawnPos = pawn->GetActorLocation();
 	bool isPoweredUp = player->IsPoweredUp();
 
-	if (playerPos == pawnPos)
-	{
-		return;
-	}
 	FVector dir = (playerPos - pawnPos);
-	dir.Normalize(0.1f);
+	dir.GetSafeNormal();
 	
+	// Si le joueur a un bonus, on inverse la direction pour le fuir
 	if (isPoweredUp)
 	{
 		dir = -dir;
 	}
-	// pawn->SetActorRotation(dir.Rotation());
-	Move(pawn, dir, m_max_acceleration, deltaTime, 0.05f);
+
+	Move(pawn, dir, m_max_acceleration, deltaTime, 0.07f);
 }
 
 ASoftDesignTrainingMainCharacter * ASDTAIController::GetPlayer(UWorld* world)
