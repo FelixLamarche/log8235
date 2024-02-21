@@ -33,6 +33,7 @@ void ASDTAIController::GoToBestTarget(float deltaTime)
     UNavigationPath* bestPath = nullptr;
     AActor* bestCollectible = nullptr;
 
+
     for (int i=0; i < collectibles.Num();i++) //iterate through collectibles and find the closest one
     {
         if (Cast<ASDTCollectible>(collectibles[i])->IsOnCooldown())
@@ -43,18 +44,22 @@ void ASDTAIController::GoToBestTarget(float deltaTime)
          pathEnd = collectibles[i]->GetActorLocation();
         
          path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(),pathStart,pathEnd,GetPawn());
-         if (bestPath == nullptr || path->GetPathLength() < bestPath->GetPathLength())
+         if (path->GetPathLength() < bestPath->GetPathLength())
          {
 			 bestPath = path;
              bestCollectible = collectibles[i];
 		 }
 
+         
        // if (FVector::Dist(pathStart, collectibles[i]->GetActorLocation()) < FVector::Dist(pathStart, pathEnd))
       //  {
 		//}
 	}
     DrawDebugSphere(world, bestCollectible->GetActorLocation(), 50, 50, FColor::Red, false, 5.f);
 
+
+
+    GEngine->AddOnScreenDebugMessage(-1, 0.001f, FColor::Red, FString::Printf(TEXT("Path: %d"), path->PathPoints.Num()));
 }
 
 void ASDTAIController::OnMoveToTarget()
@@ -75,6 +80,7 @@ void ASDTAIController::ShowNavigationPath()
     // Use the UPathFollowingComponent of the AIController to get the path
     // This function is called while m_ReachedTarget is false 
     // Check void ASDTBaseAIController::Tick for how it works.
+    // auto path = UPathFollowingComponent::GetPath();
 }
 
 void ASDTAIController::ChooseBehavior(float deltaTime)

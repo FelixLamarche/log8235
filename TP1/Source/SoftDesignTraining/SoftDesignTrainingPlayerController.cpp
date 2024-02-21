@@ -2,7 +2,7 @@
 
 #include "SoftDesignTrainingPlayerController.h"
 #include "SoftDesignTraining.h"
-//#include "AI/Navigation/NavigationSystem.h"
+#include "AI/Navigation/NavigationSystem.h"
 #include "SoftDesignTrainingCharacter.h"
 
 #include "DrawDebugHelpers.h"
