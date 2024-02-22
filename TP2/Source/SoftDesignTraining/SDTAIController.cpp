@@ -19,42 +19,55 @@ ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
 
 void ASDTAIController::GoToBestTarget(float deltaTime)
 {
+    bool showDebug = false;
     // Move to target depending on current behavior
     // This function is called while m_ReachedTarget is true.
     // Check void ASDTBaseAIController::Tick for how it works.
+    
     UWorld* world = GetWorld();
+
+    // Recherche du collectible le plus proche (en terme de distance de parcours)
     TArray<AActor*> collectibles;
     UGameplayStatics::GetAllActorsOfClass(world, ASDTCollectible::StaticClass(), collectibles);
-    // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Collectibles: %d"), collectibles.Num()));
     FVector pathStart= GetPawn()->GetActorLocation();
-    FVector pathEnd = FVector(INFINITY,INFINITY,INFINITY);
-    UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(world);
-    UNavigationPath* path = nullptr;
-    UNavigationPath* bestPath = nullptr;
+
+    float bestPathLenght = INFINITY;
     AActor* bestCollectible = nullptr;
 
     for (int i=0; i < collectibles.Num();i++) //iterate through collectibles and find the closest one
     {
+        // Si le collectible est en cooldown, on ne le prend pas en compte
         if (Cast<ASDTCollectible>(collectibles[i])->IsOnCooldown())
         {
             continue;
         }
-        
-         pathEnd = collectibles[i]->GetActorLocation();
-        
-         path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(),pathStart,pathEnd,GetPawn());
-         if (bestPath == nullptr || path->GetPathLength() < bestPath->GetPathLength())
-         {
-			 bestPath = path;
-             bestCollectible = collectibles[i];
-		 }
 
-       // if (FVector::Dist(pathStart, collectibles[i]->GetActorLocation()) < FVector::Dist(pathStart, pathEnd))
-      //  {
-		//}
+        // Calcul de la distance de parcours
+        FVector pathEnd = collectibles[i]->GetActorLocation();
+        float pathLenght = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(),pathStart,pathEnd,GetPawn())->GetPathLength();
+        // Si le collectible est plus proche que le meilleur collectible trouvé jusqu'à présent, on le prend en compte
+        if (bestCollectible == nullptr || pathLenght < bestPathLenght)
+        {
+         bestPathLenght = pathLenght;
+         bestCollectible = collectibles[i];
+        }
 	}
-    DrawDebugSphere(world, bestCollectible->GetActorLocation(), 50, 50, FColor::Red, false, 5.f);
 
+    // Si aucun collectible n'est trouvé, on return sans rien faire
+    if (bestCollectible == nullptr)
+    {
+        return;
+    }
+    // Sinon on va vers ce collectible
+    MoveToActor(bestCollectible);
+    OnMoveToTarget();
+
+    // Debug
+    if (showDebug)
+    {
+        DrawDebugSphere(world, bestCollectible->GetActorLocation(), 50, 50, FColor::Red, false);
+    }
+    
 }
 
 void ASDTAIController::OnMoveToTarget()
@@ -75,6 +88,26 @@ void ASDTAIController::ShowNavigationPath()
     // Use the UPathFollowingComponent of the AIController to get the path
     // This function is called while m_ReachedTarget is false 
     // Check void ASDTBaseAIController::Tick for how it works.
+    
+    USDTPathFollowingComponent* pathFollowingComponent = Cast<USDTPathFollowingComponent>(GetPathFollowingComponent());
+    // Récupération du path
+    FNavPathSharedPtr path = pathFollowingComponent->GetPath();
+    if (path == nullptr)
+    {
+        return;
+    }
+    // Récupération des points du path
+    const TArray<FNavPathPoint>& points = path->GetPathPoints();
+    // Affichage des points du path
+    for (int i = 0; i < points.Num(); i++)
+    {
+        if (i != points.Num() - 1)
+        {
+            DrawDebugLine(GetWorld(), points[i].Location, points[i + 1].Location, FColor::Green, false);
+        }
+        DrawDebugPoint(GetWorld(), points[i].Location, 10, FColor::Red, false);
+    }
+    
 }
 
 void ASDTAIController::ChooseBehavior(float deltaTime)

@@ -30,6 +30,9 @@ void USDTPathFollowingComponent::FollowPathSegment(float DeltaTime)
     else
     {
         // Update navigation along path (move along)
+        Super::FollowPathSegment(DeltaTime);
+
+        
     }
 }
 
@@ -44,6 +47,9 @@ void USDTPathFollowingComponent::SetMoveSegment(int32 segmentStartIndex)
     const TArray<FNavPathPoint>& points = Path->GetPathPoints();
 
     const FNavPathPoint& segmentStart = points[MoveSegmentStartIndex];
+
+    if (SDTUtils::IsNavLink(segmentStart))
+        
 
     if (SDTUtils::HasJumpFlag(segmentStart) && FNavMeshNodeFlags(segmentStart.Flags).IsNavLink())
     {
