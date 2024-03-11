@@ -20,54 +20,61 @@ ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
 void ASDTAIController::GoToBestTarget(float deltaTime)
 {
     bool showDebug = false;
-    // Move to target depending on current behavior
-    // This function is called while m_ReachedTarget is true.
-    // Check void ASDTBaseAIController::Tick for how it works.
     
     UWorld* world = GetWorld();
+    if (!world) // Check if world is null
+    {
+        return;
+    }
 
-    // Recherche du collectible le plus proche (en terme de distance de parcours)
     TArray<AActor*> collectibles;
     UGameplayStatics::GetAllActorsOfClass(world, ASDTCollectible::StaticClass(), collectibles);
-    FVector pathStart= GetPawn()->GetActorLocation();
+    APawn* pawn = GetPawn();
+    if (!pawn) // Check if pawn is null
+    {
+        return;
+    }
+
+    FVector pathStart= pawn->GetActorLocation();
 
     float bestPathLenght = INFINITY;
     AActor* bestCollectible = nullptr;
 
-    for (int i=0; i < collectibles.Num();i++) //iterate through collectibles and find the closest one
+    for (int i=0; i < collectibles.Num();i++)
     {
-        // Si le collectible est en cooldown, on ne le prend pas en compte
-        if (Cast<ASDTCollectible>(collectibles[i])->IsOnCooldown())
+        ASDTCollectible* collectible = Cast<ASDTCollectible>(collectibles[i]);
+        if (!collectible || collectible->IsOnCooldown()) // Check if collectible is null or on cooldown
         {
             continue;
         }
 
-        // Calcul de la distance de parcours
         FVector pathEnd = collectibles[i]->GetActorLocation();
-        float pathLenght = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(),pathStart,pathEnd,GetPawn())->GetPathLength();
-        // Si le collectible est plus proche que le meilleur collectible trouvé jusqu'à présent, on le prend en compte
+        UNavigationPath* path = UNavigationSystemV1::FindPathToLocationSynchronously(world, pathStart, pathEnd, pawn);
+        if (!path) // Check if path is null
+        {
+            continue;
+        }
+
+        float pathLenght = path->GetPathLength();
         if (bestCollectible == nullptr || pathLenght < bestPathLenght)
         {
-         bestPathLenght = pathLenght;
-         bestCollectible = collectibles[i];
+            bestPathLenght = pathLenght;
+            bestCollectible = collectibles[i];
         }
-	}
+    }
 
-    // Si aucun collectible n'est trouvé, on return sans rien faire
     if (bestCollectible == nullptr)
     {
         return;
     }
-    // Sinon on va vers ce collectible
+
     MoveToActor(bestCollectible);
     OnMoveToTarget();
 
-    // Debug
     if (showDebug)
     {
         DrawDebugSphere(world, bestCollectible->GetActorLocation(), 50, 50, FColor::Red, false);
     }
-    
 }
 
 void ASDTAIController::OnMoveToTarget()
