@@ -19,24 +19,21 @@ USDTPathFollowingComponent::USDTPathFollowingComponent(const FObjectInitializer&
 */
 void USDTPathFollowingComponent::FollowPathSegment(float DeltaTime)
 {
-    const TArray<FNavPathPoint>& points = Path->GetPathPoints();
-    const FNavPathPoint& segmentStart = points[MoveSegmentStartIndex];
-    const FNavPathPoint& segmentEnd = points[MoveSegmentEndIndex];
+	const TArray<FNavPathPoint>& points = Path->GetPathPoints();
 
-    ASDTAIController* controller = dynamic_cast<ASDTAIController*>(GetOwner());
+	ASDTAIController* controller = dynamic_cast<ASDTAIController*>(GetOwner());
+	FVector startPoint = segmentStart.Location;
+	FVector endPoint = segmentEnd.Location;
 
     if (SDTUtils::HasJumpFlag(segmentStart))
     {
         // Update jump along path / nav link proxy
-        controller->AtJumpSegment = true;
-
     }
     else
     {
         // Update navigation along path (move along)
         Super::FollowPathSegment(DeltaTime);
-
-        
+        controller->Landing = false;
     }
 }
 
@@ -48,22 +45,17 @@ void USDTPathFollowingComponent::SetMoveSegment(int32 segmentStartIndex)
 {
     Super::SetMoveSegment(segmentStartIndex);
 
-    const TArray<FNavPathPoint>& points = Path->GetPathPoints();
-
-    const FNavPathPoint& segmentStart = points[MoveSegmentStartIndex];
-
-    //if (SDTUtils::IsNavLink(segmentStart))
-        
     ASDTAIController* controller = dynamic_cast<ASDTAIController*>(GetOwner());
 
-    if (SDTUtils::HasJumpFlag(segmentStart) && FNavMeshNodeFlags(segmentStart.Flags).IsNavLink())
+    const TArray<FNavPathPoint>& points = Path->GetPathPoints();
+    const FNavPathPoint& segmentStart = points[MoveSegmentStartIndex];
+
+    if (!controller->AtJumpSegment && SDTUtils::HasJumpFlag(segmentStart) && FNavMeshNodeFlags(segmentStart.Flags).IsNavLink())
     {
-        // Handle starting jump
         controller->AtJumpSegment = true;
     }
     else
     {
-        // Handle normal segments
+		controller->AtJumpSegment = false;
     }
 }
-
