@@ -8,4 +8,8 @@
 void USDTAnimNotify_JumpStart::Notify(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation)
 {
     //Notify that the NPC has launched
+    // get animation end time
+    ASDTAIController* aiController = Cast<ASDTAIController>(MeshComp->GetOwner());
+
+    aiController->InAir = true;
 }

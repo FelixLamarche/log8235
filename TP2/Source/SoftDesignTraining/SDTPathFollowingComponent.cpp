@@ -23,9 +23,13 @@ void USDTPathFollowingComponent::FollowPathSegment(float DeltaTime)
     const FNavPathPoint& segmentStart = points[MoveSegmentStartIndex];
     const FNavPathPoint& segmentEnd = points[MoveSegmentEndIndex];
 
+    ASDTAIController* controller = dynamic_cast<ASDTAIController*>(GetOwner());
+
     if (SDTUtils::HasJumpFlag(segmentStart))
     {
         // Update jump along path / nav link proxy
+        controller->AtJumpSegment = true;
+
     }
     else
     {
@@ -48,12 +52,14 @@ void USDTPathFollowingComponent::SetMoveSegment(int32 segmentStartIndex)
 
     const FNavPathPoint& segmentStart = points[MoveSegmentStartIndex];
 
-    if (SDTUtils::IsNavLink(segmentStart))
+    //if (SDTUtils::IsNavLink(segmentStart))
         
+    ASDTAIController* controller = dynamic_cast<ASDTAIController*>(GetOwner());
 
     if (SDTUtils::HasJumpFlag(segmentStart) && FNavMeshNodeFlags(segmentStart.Flags).IsNavLink())
     {
         // Handle starting jump
+        controller->AtJumpSegment = true;
     }
     else
     {
