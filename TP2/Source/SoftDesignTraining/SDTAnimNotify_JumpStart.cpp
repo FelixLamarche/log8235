@@ -10,6 +10,12 @@ void USDTAnimNotify_JumpStart::Notify(USkeletalMeshComponent * MeshComp, UAnimSe
     //Notify that the NPC has launched
     // get animation end time
     ASDTAIController* aiController = Cast<ASDTAIController>(MeshComp->GetOwner());
-
-    aiController->InAir = true;
+    if (aiController != nullptr)
+    {
+		aiController->InAir = true;
+	}
+    else
+    {
+		UE_LOG(LogTemp, Warning, TEXT("USDTAnimNotify_JumpStart::Notify: aiController is nullptr"));
+	}
 }
