@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "SDTBaseAIController.h"
 #include "SDTCollectible.h"
+#include "SDTFleeLocation.h"
 #include "SDTAIController.generated.h"
 
 /**
@@ -78,6 +79,8 @@ protected:
     void UpdatePlayerInteraction(float deltaTime);
     void CheckPlayerVisibility();
     ASDTCollectible* GetBestCollectible();
+    ASDTFleeLocation* GetBestFleeLocation();
+
 
     EPathFollowingRequestResult::Type PathFollowingResult = EPathFollowingRequestResult::Type::AlreadyAtGoal;
 

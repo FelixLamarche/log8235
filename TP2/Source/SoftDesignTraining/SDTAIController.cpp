@@ -59,7 +59,8 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
         return;
 
     APawn* selfPawn = GetPawn();
-    if (!selfPawn)
+    UWorld* world = GetWorld();
+    if (!selfPawn || !world)
         return;
 
     FVector detectionStartLocation = selfPawn->GetActorLocation() + selfPawn->GetActorForwardVector() * m_DetectionCapsuleForwardStartingOffset;
@@ -82,8 +83,33 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
     ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     CheckPlayerVisibility();
   
-    // Prioritize chasing the player
-    if (IsPlayerVisible && BehaviourState != AIState::ChasingPlayer && playerCharacter)
+    const bool isPlayerPoweredUp = SDTUtils::IsPlayerPoweredUp(world);
+
+    // Prioritize fleeing the powered-up player
+    if (playerCharacter && (IsPlayerVisible && isPlayerPoweredUp || BehaviourState == AIState::FleeingPlayer))
+    {
+        if (BehaviourState != AIState::FleeingPlayer)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("fleeing"));
+            ASDTFleeLocation* bestFleeLocation = GetBestFleeLocation();
+
+            if (bestFleeLocation)
+            {
+                BehaviourState = AIState::FleeingPlayer;
+                BestTargetLocation = bestFleeLocation->GetActorLocation();
+            }
+            AIStateInterrupted();
+        }
+
+        // Keep fleeing until they are no longer powered up
+        if (!isPlayerPoweredUp)
+        {
+            AIStateInterrupted();
+            BehaviourState = AIState::Idle;
+        }
+    }
+    // Then Prioritize chasing the player
+    else if (IsPlayerVisible && BehaviourState != AIState::ChasingPlayer && playerCharacter)
     {
         AIStateInterrupted();
         BestTargetLocation = playerCharacter->GetActorLocation();
@@ -105,10 +131,15 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
         PathFollowingResult == EPathFollowingRequestResult::Failed || 
         PathFollowingResult == EPathFollowingRequestResult::AlreadyAtGoal)
     {
+        AIStateInterrupted();
+
         ASDTCollectible* bestCollectible = GetBestCollectible();
-        BestTargetLocation = bestCollectible->GetActorLocation();
-        BehaviourState = AIState::GettingCollectible;
-        GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("finding collectible"));
+        if (bestCollectible)
+        {
+            BestTargetLocation = bestCollectible->GetActorLocation();
+            BehaviourState = AIState::GettingCollectible;
+            GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("finding collectible"));
+        }
     }
 
     DrawDebugCapsule(GetWorld(), detectionStartLocation + m_DetectionCapsuleHalfLength * selfPawn->GetActorForwardVector(), m_DetectionCapsuleHalfLength, m_DetectionCapsuleRadius, selfPawn->GetActorQuat() * selfPawn->GetActorUpVector().ToOrientationQuat(), FColor::Blue);
@@ -127,6 +158,43 @@ void ASDTAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
     m_ReachedTarget = true;
 }
 
+
+ASDTFleeLocation* ASDTAIController::GetBestFleeLocation()
+{
+    ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+    UWorld* world = GetWorld();
+    APawn* pawn = GetPawn();
+    
+    if (!world || !pawn || !playerCharacter)
+        return nullptr;
+
+    TArray<AActor*> fleeLocationActors;
+    UGameplayStatics::GetAllActorsOfClass(world, ASDTFleeLocation::StaticClass(), fleeLocationActors);
+
+    FVector pawnLocation = pawn->GetActorLocation();
+    FVector playerLocation = playerCharacter->GetActorLocation();
+    FVector pawnToPlayerDir = (pawnLocation - playerLocation).GetSafeNormal2D();
+    
+    float minDotProduct = 1.0f;
+    ASDTFleeLocation* bestFleeLocation = nullptr;
+    // Try to find the flee location in the direction most opposite to the player
+    for (int i = 0; i < fleeLocationActors.Num(); i++)
+    {
+        ASDTFleeLocation* fleeLocation = Cast<ASDTFleeLocation>(fleeLocationActors[i]);
+        FVector fleeLocationEmplacement = fleeLocation->GetActorLocation();
+
+        FVector pawnToFleeLocationDir = (pawnLocation - fleeLocationEmplacement).GetSafeNormal2D();
+
+        float dotProd = pawnToFleeLocationDir.Dot(pawnToPlayerDir);
+        if (dotProd < minDotProduct)
+        {
+            minDotProduct = dotProd;
+            bestFleeLocation = fleeLocation;
+        }
+    }
+
+    return bestFleeLocation;
+}
 
 // Calculates and returns the nearest collectible to retrieve
 ASDTCollectible* ASDTAIController::GetBestCollectible()
@@ -217,8 +285,9 @@ void ASDTAIController::CheckPlayerVisibility()
     const float playerHalfWidth = 50.0f;
     const FVector playerLeftSide = playerLocation + playerHalfWidth * FVector::LeftVector;
     const FVector playerRightSide = playerLocation + playerHalfWidth * FVector::RightVector;
-    IsPlayerVisible = !SDTUtils::Raycast(world, selfPosition, playerLocation) &&
-        !SDTUtils::Raycast(world, selfPosition,  playerLeftSide) &&
+
+    IsPlayerVisible = !SDTUtils::Raycast(world, selfPosition, playerLocation) ||
+        !SDTUtils::Raycast(world, selfPosition,  playerLeftSide) ||
         !SDTUtils::Raycast(world, selfPosition, playerRightSide);
 
     if (IsPlayerVisible)

@@ -22,8 +22,9 @@ void USDTPathFollowingComponent::FollowPathSegment(float DeltaTime)
 	const TArray<FNavPathPoint>& points = Path->GetPathPoints();
 
 	ASDTAIController* controller = dynamic_cast<ASDTAIController*>(GetOwner());
-	FVector startPoint = segmentStart.Location;
-	FVector endPoint = segmentEnd.Location;
+    FVector segmentStart = FVector::ZeroVector;
+    //FVector startPoint = segmentStart.Location;
+	//FVector endPoint = segmentEnd.Location;
 
     if (SDTUtils::HasJumpFlag(segmentStart))
     {
