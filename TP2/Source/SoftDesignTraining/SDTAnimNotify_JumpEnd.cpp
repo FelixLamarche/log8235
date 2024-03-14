@@ -8,4 +8,9 @@
 void USDTAnimNotify_JumpEnd::Notify(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation)
 {
     //Notify that our NPC has landed
+	ASDTAIController* aiController = Cast<ASDTAIController>(MeshComp->GetOwner());
+	if (aiController != nullptr)
+	{
+		aiController->InAir = false;
+	}
 }
