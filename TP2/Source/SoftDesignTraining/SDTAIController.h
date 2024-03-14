@@ -4,11 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "SDTBaseAIController.h"
+#include "SDTCollectible.h"
 #include "SDTAIController.generated.h"
 
 /**
  * 
  */
+
+UENUM()
+enum class AIState
+{
+    Idle,
+    GettingCollectible,
+    ChasingPlayer,
+    ChasingPlayerLastLocation,
+    FleeingPlayer
+};
+
 UCLASS(ClassGroup = AI, config = Game)
 class SOFTDESIGNTRAINING_API ASDTAIController : public ASDTBaseAIController
 {
@@ -16,6 +28,9 @@ class SOFTDESIGNTRAINING_API ASDTAIController : public ASDTBaseAIController
 
 public:
     ASDTAIController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
+    AIState BehaviourState = AIState::Idle;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
     float m_DetectionCapsuleHalfLength = 500.f;
@@ -44,6 +59,15 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
     bool Landing = false;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
+    bool IsPlayerVisible = false;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
+    FVector LastKnownPlayerLocation = FVector::ZeroVector;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
+    FVector BestTargetLocation = FVector::ZeroVector;
+
 public:
     virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
     void AIStateInterrupted();
@@ -52,6 +76,10 @@ protected:
     void OnMoveToTarget();
     void GetHightestPriorityDetectionHit(const TArray<FHitResult>& hits, FHitResult& outDetectionHit);
     void UpdatePlayerInteraction(float deltaTime);
+    void CheckPlayerVisibility();
+    ASDTCollectible* GetBestCollectible();
+
+    EPathFollowingRequestResult::Type PathFollowingResult = EPathFollowingRequestResult::Type::AlreadyAtGoal;
 
 private:
     virtual void GoToBestTarget(float deltaTime) override;
