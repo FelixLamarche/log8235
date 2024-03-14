@@ -19,16 +19,44 @@ USDTPathFollowingComponent::USDTPathFollowingComponent(const FObjectInitializer&
 */
 void USDTPathFollowingComponent::FollowPathSegment(float DeltaTime)
 {
-	const TArray<FNavPathPoint>& points = Path->GetPathPoints();
+    ASDTAIController* controller = dynamic_cast<ASDTAIController*>(GetOwner());
 
-	ASDTAIController* controller = dynamic_cast<ASDTAIController*>(GetOwner());
-    FVector segmentStart = FVector::ZeroVector;
-    //FVector startPoint = segmentStart.Location;
-	//FVector endPoint = segmentEnd.Location;
+	const TArray<FNavPathPoint>& points = Path->GetPathPoints();
+    const FNavPathPoint& segmentStart = points[MoveSegmentStartIndex];
+    const FNavPathPoint& segmentEnd = points[MoveSegmentStartIndex + 1];
+
+    if (!controller->AtJumpSegment)
+        m_jumpCurveTime = 0;
 
     if (SDTUtils::HasJumpFlag(segmentStart))
     {
         // Update jump along path / nav link proxy
+        APawn* pawn = controller->GetPawn();
+        FVector pawnPos = pawn->GetActorLocation();
+        controller->Landing = false;
+
+        const auto toTarget = (segmentEnd.Location - pawnPos).GetSafeNormal();
+        // if (std::abs(std::acos(FVector::DotProduct(pawn->GetActorForwardVector(), toTarget))) <= 0.25 && !controller->AtJumpSegment) {
+        //     pawn->SetActorRotation(FMath::Lerp(pawn->GetActorRotation(), toTarget.Rotation(), 0.1f));
+        //     DrawDebugSphere(GetWorld(), pawnPos, 32.f, 32, FColor::Red, false, 1.f);
+        //     return;
+        // }
+
+        const double totalDistance = FVector::Dist2D(segmentStart.Location, segmentEnd.Location);
+        const double coveredDistance = FVector::Dist2D(pawnPos, segmentStart.Location);
+        m_jumpCurveTime = coveredDistance / totalDistance;
+
+        UCurveFloat* jumpCurve = controller->JumpCurve;
+        float value = jumpCurve->GetFloatValue(m_jumpCurveTime);
+
+        pawnPos.Z = segmentStart.Location.Z + controller->JumpApexHeight * value * 4;
+
+        if (m_jumpCurveTime > 0.9) // maybe distance to end point instead
+            controller->Landing = true;
+
+        const auto displacement = toTarget * DeltaTime;
+        pawn->SetActorLocation(pawnPos + displacement, true);
+        pawn->AddMovementInput(toTarget, controller->JumpSpeed);
     }
     else
     {
@@ -50,13 +78,18 @@ void USDTPathFollowingComponent::SetMoveSegment(int32 segmentStartIndex)
 
     const TArray<FNavPathPoint>& points = Path->GetPathPoints();
     const FNavPathPoint& segmentStart = points[MoveSegmentStartIndex];
+    const FNavPathPoint& segmentEnd = points[MoveSegmentStartIndex + 1];
 
-    if (!controller->AtJumpSegment && SDTUtils::HasJumpFlag(segmentStart) && FNavMeshNodeFlags(segmentStart.Flags).IsNavLink())
+    if (!controller->AtJumpSegment
+        && SDTUtils::HasJumpFlag(segmentStart)
+        && FNavMeshNodeFlags(segmentStart.Flags).IsNavLink())
     {
         controller->AtJumpSegment = true;
+        Cast<UCharacterMovementComponent>(MovementComp)->SetMovementMode(MOVE_Flying);
     }
     else
     {
 		controller->AtJumpSegment = false;
+        Cast<UCharacterMovementComponent>(MovementComp)->SetMovementMode(MOVE_Walking);
     }
 }

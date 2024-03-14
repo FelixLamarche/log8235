@@ -14,6 +14,9 @@ class SOFTDESIGNTRAINING_API USDTPathFollowingComponent : public UPathFollowingC
 {
     GENERATED_UCLASS_BODY()
 
+protected:
+    float m_jumpCurveTime;
+
 public:
     virtual void FollowPathSegment(float deltaTime) override;
     virtual void SetMoveSegment(int32 segmentStartIndex) override;
