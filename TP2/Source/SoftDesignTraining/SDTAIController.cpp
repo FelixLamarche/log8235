@@ -90,7 +90,6 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
     {
         if (BehaviourState != AIState::FleeingPlayer)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("fleeing"));
             ASDTFleeLocation* bestFleeLocation = GetBestFleeLocation();
 
             if (bestFleeLocation)
@@ -114,7 +113,6 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
         AIStateInterrupted();
         BestTargetLocation = playerCharacter->GetActorLocation();
         BehaviourState = AIState::ChasingPlayer;
-        GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("chasing"));
     }
     // Then start chasing the last known player location when he is no longer visible
     else if (!IsPlayerVisible && BehaviourState == AIState::ChasingPlayer)
@@ -122,8 +120,6 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
         AIStateInterrupted();
         BehaviourState = AIState::ChasingPlayerLastLocation;
         BestTargetLocation = LastKnownPlayerLocation;
-        
-        GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Blue, TEXT("chasing location"));
     }
     // Else if we do not have a goal, we search for a collectible
     // Examining path request to solve a bug which avoids locking the state of the agent
@@ -138,7 +134,6 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
         {
             BestTargetLocation = bestCollectible->GetActorLocation();
             BehaviourState = AIState::GettingCollectible;
-            GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Blue, TEXT("finding collectible"));
         }
     }
 
