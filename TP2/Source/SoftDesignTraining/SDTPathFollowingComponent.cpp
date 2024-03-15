@@ -49,7 +49,7 @@ void USDTPathFollowingComponent::FollowPathSegment(float DeltaTime)
         UCurveFloat* jumpCurve = controller->JumpCurve;
         float value = jumpCurve->GetFloatValue(m_jumpCurveTime);
 
-        pawnPos.Z = segmentStart.Location.Z + controller->JumpApexHeight * value * 4;
+        pawnPos.Z = segmentStart.Location.Z + controller->JumpApexHeight * value;
 
         if (m_jumpCurveTime > 0.9) // maybe distance to end point instead
             controller->Landing = true;

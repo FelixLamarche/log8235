@@ -88,7 +88,15 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
     // Prioritize fleeing the powered-up player
     if (playerCharacter && (IsPlayerVisible && isPlayerPoweredUp || BehaviourState == AIState::FleeingPlayer))
     {
-        if (BehaviourState != AIState::FleeingPlayer)
+        FVector pawnToPlayerDir = (playerCharacter->GetActorLocation() - selfPawn->GetActorLocation()).GetSafeNormal2D();
+        FVector pawnVelocityDir = selfPawn->GetVelocity().GetSafeNormal2D();
+        float pawnVelocityToPlayerDot = pawnVelocityDir.Dot(pawnToPlayerDir);
+
+        const float maxPawnDirDotProduct = 0.65f;
+        // Change direction if the pawn is moving towards the player
+        const bool doChangeFleeLocation = pawnVelocityToPlayerDot >= maxPawnDirDotProduct;
+
+        if (BehaviourState != AIState::FleeingPlayer || doChangeFleeLocation)
         {
             ASDTFleeLocation* bestFleeLocation = GetBestFleeLocation();
 
