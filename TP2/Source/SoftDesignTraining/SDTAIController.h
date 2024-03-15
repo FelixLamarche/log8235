@@ -69,6 +69,12 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
     FVector BestTargetLocation = FVector::ZeroVector;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
+    float m_jumpCurveTime = 0;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
+    float jumpProgression;
+
 public:
     virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
     void AIStateInterrupted();
