@@ -8,15 +8,23 @@
 #include "Engine/Engine.h"
 void USDTAnimNotify_JumpStart::Notify(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation)
 {
-    //Notify that the NPC has launched
-    ASDTAIController* aiController = dynamic_cast<ASDTAIController*>(MeshComp->GetOwner());
+    // Get the owner of the MeshComp
+    APawn* PawnOwner = Cast<APawn>(MeshComp->GetOwner());
 
-    if (aiController != nullptr)
+    if (PawnOwner)
     {
-		aiController->InAir = true;
+        // Get the controller of the pawn
+        AController* Controller = PawnOwner->GetController();
+
+        // Cast the controller to ASDTAIController
+        ASDTAIController* AIController = Cast<ASDTAIController>(Controller);
+
+        if (AIController)
+        {
+            // The controller is an ASDTAIController, you can now use it
+            AIController->InAir = true;
+            //GEngine->AddOnScreenDebugMessage(-1, 500.f, FColor::Red, TEXT("USDTAnimNotify_JumpStart::Notify: InAir = true"));
+        }
+
     }
-    else
-    {
-		UE_LOG(LogTemp, Warning, TEXT("USDTAnimNotify_JumpStart::Notify: aiController is nullptr"));
-	}
 }

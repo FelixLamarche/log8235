@@ -8,16 +8,20 @@
 #include "Engine/Engine.h"
 void USDTAnimNotify_JumpEnd::Notify(USkeletalMeshComponent * MeshComp, UAnimSequenceBase * Animation)
 {
-    //Notify that our NPC has landed
-    ASDTAIController* aiController = dynamic_cast<ASDTAIController*>(MeshComp->GetOwner());
+    // Get the owner of the MeshComp
+    APawn* PawnOwner = Cast<APawn>(MeshComp->GetOwner());
 
+    if (PawnOwner)
+    {
+        // Get the controller of the pawn
+        AController* Controller = PawnOwner->GetController();
 
-    if (aiController != nullptr)
-    {
-        aiController->InAir = false;
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("USDTAnimNotify_JumpEnd::Notify: aiController is nullptr"));
-    }
+        // Cast the controller to ASDTAIController
+        ASDTAIController* AIController = Cast<ASDTAIController>(Controller);
+
+        if (AIController)
+        {
+            // The controller is an ASDTAIController, you can now use it
+            AIController->InAir = false;
+        }
 }

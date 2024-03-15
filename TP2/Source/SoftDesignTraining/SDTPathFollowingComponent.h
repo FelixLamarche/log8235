@@ -15,8 +15,7 @@ class SOFTDESIGNTRAINING_API USDTPathFollowingComponent : public UPathFollowingC
     GENERATED_UCLASS_BODY()
 
 protected:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
-    float m_jumpCurveTime;
+
 
 public:
     virtual void FollowPathSegment(float deltaTime) override;
