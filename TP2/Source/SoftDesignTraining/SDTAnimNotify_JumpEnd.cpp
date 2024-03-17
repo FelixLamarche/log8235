@@ -24,4 +24,5 @@ void USDTAnimNotify_JumpEnd::Notify(USkeletalMeshComponent * MeshComp, UAnimSequ
             // The controller is an ASDTAIController, you can now use it
             AIController->InAir = false;
         }
+    }
 }
