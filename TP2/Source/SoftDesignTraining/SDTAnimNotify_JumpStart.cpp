@@ -23,7 +23,6 @@ void USDTAnimNotify_JumpStart::Notify(USkeletalMeshComponent * MeshComp, UAnimSe
         {
             // The controller is an ASDTAIController, you can now use it
             AIController->InAir = true;
-            //GEngine->AddOnScreenDebugMessage(-1, 500.f, FColor::Red, TEXT("USDTAnimNotify_JumpStart::Notify: InAir = true"));
         }
 
     }

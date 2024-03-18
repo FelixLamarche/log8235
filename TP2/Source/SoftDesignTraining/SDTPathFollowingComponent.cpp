@@ -26,7 +26,6 @@ void USDTPathFollowingComponent::FollowPathSegment(float DeltaTime)
 
     if (!controller->AtJumpSegment)
         controller->JumpCurveTime = 0;
-    GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, FString::Printf(TEXT("IsInAir: %f"), controller->InAir));
     if (SDTUtils::HasJumpFlag(segmentStart))
     {
         // Update jump along path / nav link proxy
@@ -35,7 +34,6 @@ void USDTPathFollowingComponent::FollowPathSegment(float DeltaTime)
         controller->Landing = false;
         //Get controller velocity
         FVector velocity = pawn->GetVelocity();
-        GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Green, FString::Printf(TEXT("Velocity: %f"), velocity.Size()));
         const auto toTarget = (segmentEnd.Location - pawnPos).GetSafeNormal();
 
         const double totalDistance = FVector::Dist2D(segmentStart.Location, segmentEnd.Location);
