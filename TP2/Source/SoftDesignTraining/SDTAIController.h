@@ -70,7 +70,7 @@ public:
     FVector BestTargetLocation = FVector::ZeroVector;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
-    float m_jumpCurveTime = 0;
+    float JumpCurveTime = 0;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
     float jumpProgression;

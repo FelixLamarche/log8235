@@ -25,7 +25,7 @@ void USDTPathFollowingComponent::FollowPathSegment(float DeltaTime)
     const FNavPathPoint &segmentEnd = points[MoveSegmentStartIndex + 1];
 
     if (!controller->AtJumpSegment)
-        controller->m_jumpCurveTime = 0;
+        controller->JumpCurveTime = 0;
     GEngine->AddOnScreenDebugMessage(1, 5.f, FColor::Red, FString::Printf(TEXT("IsInAir: %f"), controller->InAir));
     if (SDTUtils::HasJumpFlag(segmentStart))
     {
@@ -37,22 +37,17 @@ void USDTPathFollowingComponent::FollowPathSegment(float DeltaTime)
         FVector velocity = pawn->GetVelocity();
         GEngine->AddOnScreenDebugMessage(3, 5.f, FColor::Green, FString::Printf(TEXT("Velocity: %f"), velocity.Size()));
         const auto toTarget = (segmentEnd.Location - pawnPos).GetSafeNormal();
-        // if (std::abs(std::acos(FVector::DotProduct(pawn->GetActorForwardVector(), toTarget))) <= 0.25 && !controller->AtJumpSegment) {
-        //     pawn->SetActorRotation(FMath::Lerp(pawn->GetActorRotation(), toTarget.Rotation(), 0.1f));
-        //     DrawDebugSphere(GetWorld(), pawnPos, 32.f, 32, FColor::Red, false, 1.f);
-        //     return;
-        // }
 
         const double totalDistance = FVector::Dist2D(segmentStart.Location, segmentEnd.Location);
         const double coveredDistance = FVector::Dist2D(pawnPos, segmentStart.Location);
-        controller->m_jumpCurveTime = coveredDistance / totalDistance;
+        controller->JumpCurveTime = coveredDistance / totalDistance;
 
         UCurveFloat *jumpCurve = controller->JumpCurve;
-        float value = jumpCurve->GetFloatValue(controller->m_jumpCurveTime);
+        float value = jumpCurve->GetFloatValue(controller->JumpCurveTime);
 
         pawnPos.Z = segmentStart.Location.Z + controller->JumpApexHeight * value;
 
-        if (controller->m_jumpCurveTime > 0.9) // maybe distance to end point instead
+        if (controller->JumpCurveTime > 0.9)
             controller->Landing = true;
 
         const auto displacement = toTarget * DeltaTime;
