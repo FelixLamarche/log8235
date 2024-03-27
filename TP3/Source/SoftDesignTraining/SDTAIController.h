@@ -45,7 +45,10 @@ public:
     bool Landing = false;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
-    bool IsInPoursuiteGroupe = false;
+    bool HasLoSOnPlayer = false;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
+    bool IsInPursuitGroup = false;
 
 protected:
 
@@ -55,6 +58,9 @@ protected:
         PlayerInteractionBehavior_Chase,
         PlayerInteractionBehavior_Flee
     };
+
+    UPROPERTY(EditAnywhere, category = Behavior)
+    UBehaviorTree* m_aiBehaviorTree;
 
     void GetHightestPriorityDetectionHit(const TArray<FHitResult>& hits, FHitResult& outDetectionHit);
     void UpdatePlayerInteractionBehavior(const FHitResult& detectionHit, float deltaTime);
@@ -68,6 +74,7 @@ protected:
     void OnMoveToTarget();
 
 public:
+    void UpdateLoSOnPlayer();
     virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
     void RotateTowards(const FVector& targetLocation);
     void SetActorLocation(const FVector& targetLocation);

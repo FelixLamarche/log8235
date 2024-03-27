@@ -80,8 +80,33 @@ void ASDTAIController::MoveToPlayer()
     OnMoveToTarget();
 }
 
+void ASDTAIController::UpdateLoSOnPlayer()
+{
+    ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+    if (!playerCharacter)
+        return;
+
+    TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjectTypes;
+    TraceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
+    TraceObjectTypes.Add(UEngineTypes::ConvertToObjectType(COLLISION_PLAYER));
+
+    FHitResult losHit;
+    GetWorld()->LineTraceSingleByObjectType(losHit, GetPawn()->GetActorLocation(), playerCharacter->GetActorLocation(), TraceObjectTypes);
+
+    HasLoSOnPlayer = false;
+
+    if (losHit.GetComponent())
+    {
+        if (losHit.GetComponent()->GetCollisionObjectType() == COLLISION_PLAYER)
+        {
+            HasLoSOnPlayer = true;
+        }
+    }
+}
+
 void ASDTAIController::PlayerInteractionLoSUpdate()
 {
+    // REMOVE THIS FUNCTION ONCE BEHAVIOUR IS IN THE BEHAVIOUR TREE
     ACharacter * playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
         return;
