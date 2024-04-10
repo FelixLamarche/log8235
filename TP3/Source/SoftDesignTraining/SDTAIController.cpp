@@ -10,6 +10,7 @@
 //#include "UnrealMathUtility.h"
 #include "SDTUtils.h"
 #include "EngineUtils.h"
+#include "LoadBalancerManager.h"
 
 ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer.SetDefaultSubobjectClass<USDTPathFollowingComponent>(TEXT("PathFollowingComponent")))
@@ -17,8 +18,35 @@ ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     m_PlayerInteractionBehavior = PlayerInteractionBehavior_Collect;
 }
 
+void ASDTAIController::BeginPlay()
+{
+    TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::BeginPlay);
+    Super::BeginPlay();
+
+    LoadBalancerManager* loadBalancerManager = LoadBalancerManager::GetInstance();
+    if (loadBalancerManager)
+    {
+        TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::RegisterNPC);
+        loadBalancerManager->RegisterNPC(this);
+    }
+}
+
+void ASDTAIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    Super::EndPlay(EndPlayReason);
+
+    LoadBalancerManager* loadBalancerManager = LoadBalancerManager::GetInstance();
+    if (loadBalancerManager)
+    {
+        loadBalancerManager->UnregisterNPC(this);
+    }
+
+
+}
+
 void ASDTAIController::GoToBestTarget(float deltaTime)
 {
+    TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::GoToBestTarget)
     switch (m_PlayerInteractionBehavior)
     {
     case PlayerInteractionBehavior_Collect:
@@ -234,6 +262,7 @@ void ASDTAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
 
 void ASDTAIController::ShowNavigationPath()
 {
+    TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::ShowNavigationPath)
     if (UPathFollowingComponent* pathFollowingComponent = GetPathFollowingComponent())
     {
         if (pathFollowingComponent->HasValidPath())
@@ -256,6 +285,7 @@ void ASDTAIController::ShowNavigationPath()
 
 void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
 {
+    TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::UpdatePlayerInteraction)
     //finish jump before updating AI state
     if (AtJumpSegment)
         return;
