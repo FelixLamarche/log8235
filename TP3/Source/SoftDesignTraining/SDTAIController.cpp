@@ -435,7 +435,12 @@ void ASDTAIController::UpdateIsActorOnCamera()
 void ASDTAIController::UpdateTickRateMovementComponent()
 {   
     TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::UpdateTickRateMovementComponent);
-    UCharacterMovementComponent* movementComponent = GetPawn()->FindComponentByClass<UCharacterMovementComponent>();
+    APawn* selfPawn = GetPawn();
+
+    if (!selfPawn)
+		return;
+
+    UCharacterMovementComponent* movementComponent = selfPawn->FindComponentByClass<UCharacterMovementComponent>();
     if (movementComponent)
     {   
         // Si l'acteur est sur la caméra ou qu'il est dans le groupe de poursuite, on met à jour le tick rate du mouvement component à 0
@@ -446,6 +451,28 @@ void ASDTAIController::UpdateTickRateMovementComponent()
         else
         {
 			movementComponent->SetComponentTickInterval(2.f);
+		}
+	}
+}
+
+void ASDTAIController::UpdateTickRateSKinMeshComponent()
+{
+	TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::UpdateTickRateSKinMeshComponent);
+    APawn* selfPawn = GetPawn();
+
+    if (!selfPawn)
+        return;
+
+	USkeletalMeshComponent* skinMeshComponent = selfPawn->FindComponentByClass<USkeletalMeshComponent>();
+    if (skinMeshComponent)
+    {
+        if (IsActorOnCamera)
+        {
+			skinMeshComponent->SetComponentTickInterval(0.f);
+		}
+        else
+        {
+			skinMeshComponent->SetComponentTickInterval(2.f);
 		}
 	}
 }
@@ -462,6 +489,7 @@ void ASDTAIController::Tick(float deltaTime)
     if (oldIsActorOnCamera != IsActorOnCamera) // Added to update the tick rate of the movement component only when the value of IsActorOnCamera changes
     {		
         UpdateTickRateMovementComponent(); // Added to update the tick rate of the movement component
+        UpdateTickRateSKinMeshComponent(); // Added to update the tick rate of the skin mesh component
 	}
 
 

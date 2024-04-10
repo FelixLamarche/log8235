@@ -90,6 +90,7 @@ protected:
     
     void UpdateIsActorOnCamera();
     void UpdateTickRateMovementComponent();
+    void UpdateTickRateSKinMeshComponent();
 
 public:
     void UpdateLoSOnPlayer();
