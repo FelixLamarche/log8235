@@ -29,6 +29,10 @@ public:
 
     virtual void GoToBestTarget(float deltaTime) override;
 
+
+    void UpdateTickRateMovementComponent();
+    void UpdateTickRateSKinMeshComponent();
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
     float m_DetectionCapsuleHalfLength = 500.f;
 
@@ -89,8 +93,6 @@ protected:
     void OnMoveToTarget();
     
     void UpdateIsActorOnCamera();
-    void UpdateTickRateMovementComponent();
-    void UpdateTickRateSKinMeshComponent();
 
 public:
     void UpdateLoSOnPlayer();

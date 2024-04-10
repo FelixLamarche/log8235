@@ -429,7 +429,8 @@ void ASDTAIController::UpdateIsActorOnCamera()
     if (!selfPawn)
         return;
 
-    IsActorOnCamera = selfPawn->WasRecentlyRendered(1.f);
+    // Su l'acteur a été rendu récemment, on met à jour la variable IsActorOnCamera à true
+    IsActorOnCamera = selfPawn->WasRecentlyRendered(1.5f);
 }
 
 void ASDTAIController::UpdateTickRateMovementComponent()

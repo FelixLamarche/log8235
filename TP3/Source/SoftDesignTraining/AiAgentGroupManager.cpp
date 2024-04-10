@@ -29,12 +29,19 @@ void AiAgentGroupManager::RegisterAIAgent(ASDTAIController* aiAgent)
 {
     m_registeredAgents.Add(aiAgent);
     aiAgent->IsInPursuitGroup = true;
+    // Update tick rate of the agent
+    aiAgent->UpdateTickRateMovementComponent();
+    aiAgent->UpdateTickRateSKinMeshComponent();
+
 }
 
 void AiAgentGroupManager::UnregisterAIAgent(ASDTAIController* aiAgent)
 {
     m_registeredAgents.Remove(aiAgent);
     aiAgent->IsInPursuitGroup = false;
+    // Update tick rate of the agent
+    aiAgent->UpdateTickRateMovementComponent();
+    aiAgent->UpdateTickRateSKinMeshComponent();
 }
 
 void AiAgentGroupManager::UpdatePlayerLKP(FVector lkp)
