@@ -89,6 +89,8 @@ void LoadBalancerManager::TickWorld(UWorld* World, ELevelTick TickType, float De
 		groupManager->DrawDebugGroup();
 	}
 
+	ElapsedTime = FPlatformTime::Seconds() - StartTime;
+
 	while (ElapsedTime < m_MaxTimeUpdateNPC)
 	{
 		// Récupération du NPC
@@ -96,6 +98,7 @@ void LoadBalancerManager::TickWorld(UWorld* World, ELevelTick TickType, float De
 		{	
 			// Update de l'interaction avec le joueur
 			ai->UpdatePlayerInteraction(DeltaSeconds);
+
 		}
 
 		m_UpdateIndex++;
@@ -109,9 +112,6 @@ void LoadBalancerManager::TickWorld(UWorld* World, ELevelTick TickType, float De
 		// Mise à jour du temps écoulé
 		ElapsedTime = FPlatformTime::Seconds() - StartTime;
 	}
-
-	// Log de la durée de la mise à jour
-	//UE_LOG(LogTemp, Warning, TEXT("Elapsed time : %f, m_MaxTimeUpdateNPC : %f, ElapsedTime < m_MaxTimeUpdateNPC : %d"), ElapsedTime, m_MaxTimeUpdateNPC, ElapsedTime < m_MaxTimeUpdateNPC);
 
 	
 

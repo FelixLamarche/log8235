@@ -25,6 +25,10 @@ public:
 
     virtual void Tick(float deltaTime) override;
 
+    virtual void ShowNavigationPath() override;
+
+    virtual void GoToBestTarget(float deltaTime) override;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
     float m_DetectionCapsuleHalfLength = 500.f;
 
@@ -85,6 +89,7 @@ protected:
     void OnMoveToTarget();
     
     void UpdateIsActorOnCamera();
+    void UpdateTickRateMovementComponent();
 
 public:
     void UpdateLoSOnPlayer();
@@ -92,11 +97,6 @@ public:
     void RotateTowards(const FVector& targetLocation);
     void SetActorLocation(const FVector& targetLocation);
     void AIStateInterrupted();
-
-private:
-    virtual void GoToBestTarget(float deltaTime) override;
-    virtual void ShowNavigationPath() override;
-
 
 protected:
     FVector m_JumpTarget;

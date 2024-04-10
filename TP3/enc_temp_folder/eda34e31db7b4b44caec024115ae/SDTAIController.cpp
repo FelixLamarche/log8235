@@ -431,18 +431,16 @@ void ASDTAIController::UpdateIsActorOnCamera()
 
 void ASDTAIController::UpdateTickRateMovementComponent()
 {   
-    TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::UpdateTickRateMovementComponent);
     UCharacterMovementComponent* movementComponent = GetPawn()->FindComponentByClass<UCharacterMovementComponent>();
     if (movementComponent)
-    {   
-        // Si l'acteur est sur la caméra ou qu'il est dans le groupe de poursuite, on met à jour le tick rate du mouvement component à 0
-        if (IsActorOnCamera || IsInPursuitGroup)
+    {
+        if (IsActorOnCamera)
         {
-			movementComponent->SetComponentTickInterval(0.f);
+			movementComponent->SetComponentTickInterval(0.1f);
 		}
         else
         {
-			movementComponent->SetComponentTickInterval(2.f);
+			movementComponent->SetComponentTickInterval(1.f);
 		}
 	}
 }
@@ -453,12 +451,11 @@ void ASDTAIController::Tick(float deltaTime)
 	Super::Tick(deltaTime);
 
     bool oldIsActorOnCamera = IsActorOnCamera; // Added to store the old value of IsActorOnCamera
-
     UpdateIsActorOnCamera(); // Added to update the IsActorOnCamera variable
 
     if (oldIsActorOnCamera != IsActorOnCamera) // Added to update the tick rate of the movement component only when the value of IsActorOnCamera changes
     {		
-        UpdateTickRateMovementComponent(); // Added to update the tick rate of the movement component
+        UpdateTickRateMovementComponent();
 	}
 
 
