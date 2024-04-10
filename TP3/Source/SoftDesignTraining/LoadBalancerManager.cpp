@@ -4,6 +4,7 @@
 #include "LoadBalancerManager.h"
 #include "SDTAIController.h"
 #include "SDTUtils.h"
+#include "AiAgentGroupManager.h"
 
 LoadBalancerManager* LoadBalancerManager::m_Instance;
 FDelegateHandle LoadBalancerManager::m_DelegateHandle;
@@ -81,6 +82,12 @@ void LoadBalancerManager::TickWorld(UWorld* World, ELevelTick TickType, float De
 	// Temps écoulé
 	double ElapsedTime = 0;
 
+	// Affichage des PNJ dans le group de poursuite
+	AiAgentGroupManager* groupManager = AiAgentGroupManager::GetInstance();
+	if (groupManager)
+	{
+		groupManager->DrawDebugGroup();
+	}
 
 	while (ElapsedTime < m_MaxTimeUpdateNPC)
 	{

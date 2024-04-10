@@ -11,6 +11,7 @@
 #include "SDTUtils.h"
 #include "EngineUtils.h"
 #include "LoadBalancerManager.h"
+#include"AiAgentGroupManager.h"
 
 ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer.SetDefaultSubobjectClass<USDTPathFollowingComponent>(TEXT("PathFollowingComponent")))
@@ -415,4 +416,31 @@ void ASDTAIController::UpdatePlayerInteractionBehavior(const FHitResult& detecti
         m_PlayerInteractionBehavior = currentBehavior;
         AIStateInterrupted();
     }
+}
+
+void ASDTAIController::UpdateIsActorOnCamera()
+{
+	AActor* selfPawn = GetPawn();
+    
+    if (!selfPawn)
+        return;
+
+    IsActorOnCamera = selfPawn->WasRecentlyRendered(1.f);
+}
+
+void ASDTAIController::Tick(float deltaTime)
+{
+	TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::Tick);
+	Super::Tick(deltaTime);
+
+    UpdateIsActorOnCamera(); // Added to update the IsActorOnCamera variable
+
+    if (m_ReachedTarget)
+    {
+		GoToBestTarget(deltaTime);
+	}
+    else if (IsActorOnCamera) // 'else if' added to avoid calling ShowNavigationPath() when the actor is not on camera
+    {
+		ShowNavigationPath();
+	}
 }

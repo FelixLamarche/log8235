@@ -39,17 +39,28 @@ void AiAgentGroupManager::UnregisterAIAgent(ASDTAIController* aiAgent)
 
 void AiAgentGroupManager::DrawDebugGroup()
 {
-    for (auto agent : m_registeredAgents)
+    TRACE_CPUPROFILER_EVENT_SCOPE(AiAgentGroupManager::DrawDebugGroup);
+
+    for(int i=0; i < m_registeredAgents.Num(); i++)
     {
-        FVector head;
-        FRotator rotation;
-        agent->GetPawn()->GetActorEyesViewPoint(head, rotation);
-        DrawDebugSphere(
-            agent->GetWorld(),
-            head,
-            30.f,
-            32,
-            FColor::Purple
-        );
+        // Récupération du NPC
+        if (ASDTAIController* ai = Cast<ASDTAIController>(m_registeredAgents[i]))
+        {
+            // Si l'agent est sur la caméra
+            if (ai->IsActorOnCamera) 
+            {
+                FVector head;
+                FRotator rotation;
+                ai->GetPawn()->GetActorEyesViewPoint(head, rotation);
+                DrawDebugSphere(
+                    ai->GetWorld(),
+                    head,
+                    30.f,
+                    32,
+                    FColor::Purple
+                    );
+            }
+        }
+    
     }
 }

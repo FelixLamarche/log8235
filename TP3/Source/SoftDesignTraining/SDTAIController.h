@@ -23,6 +23,8 @@ public:
 
     virtual void UpdatePlayerInteraction(float deltaTime) override;
 
+    virtual void Tick(float deltaTime) override;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
     float m_DetectionCapsuleHalfLength = 500.f;
 
@@ -56,6 +58,9 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
     bool IsInPursuitGroup = false;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
+    bool IsActorOnCamera = false;
+
 protected:
 
     enum PlayerInteractionBehavior
@@ -78,6 +83,8 @@ protected:
     void PlayerInteractionLoSUpdate();
     void OnPlayerInteractionNoLosDone();
     void OnMoveToTarget();
+    
+    void UpdateIsActorOnCamera();
 
 public:
     void UpdateLoSOnPlayer();
