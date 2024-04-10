@@ -86,7 +86,7 @@ void LoadBalancerManager::TickWorld(UWorld* World, ELevelTick TickType, float De
 	AiAgentGroupManager* groupManager = AiAgentGroupManager::GetInstance();
 	if (groupManager)
 	{
-		groupManager->DrawDebugGroup();
+		groupManager->DrawDebugGroup(World);
 	}
 
 	ElapsedTime = FPlatformTime::Seconds() - StartTime;

@@ -37,7 +37,32 @@ void AiAgentGroupManager::UnregisterAIAgent(ASDTAIController* aiAgent)
     aiAgent->IsInPursuitGroup = false;
 }
 
-void AiAgentGroupManager::DrawDebugGroup()
+void AiAgentGroupManager::UpdatePlayerLKP(FVector lkp)
+{
+    m_playerLKP = lkp;
+}
+
+bool AiAgentGroupManager::AgentAtLKP()
+{
+    for (auto agent : m_registeredAgents)
+    {
+        if ((agent->GetPawn()->GetActorLocation() - m_playerLKP).Size2D() < 50.f)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void AiAgentGroupManager::Disband()
+{
+    for (auto agent : m_registeredAgents)
+    {
+        UnregisterAIAgent(agent);
+    }
+}
+
+void AiAgentGroupManager::DrawDebugGroup(UWorld* world)
 {
     TRACE_CPUPROFILER_EVENT_SCOPE(AiAgentGroupManager::DrawDebugGroup);
 
@@ -52,15 +77,14 @@ void AiAgentGroupManager::DrawDebugGroup()
                 FVector head;
                 FRotator rotation;
                 ai->GetPawn()->GetActorEyesViewPoint(head, rotation);
-                DrawDebugSphere(
-                    ai->GetWorld(),
-                    head,
-                    30.f,
-                    32,
-                    FColor::Purple
-                    );
+                DrawDebugSphere(world, head, 30.f, 32, FColor::Purple);
             }
         }
     
+    }
+
+    if (m_registeredAgents.Num() > 0)
+    {
+        DrawDebugSphere(world, m_playerLKP, 30.f, 32, FColor::Red);
     }
 }

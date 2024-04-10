@@ -11,7 +11,7 @@
 #include "SDTUtils.h"
 #include "EngineUtils.h"
 #include "LoadBalancerManager.h"
-#include"AiAgentGroupManager.h"
+#include "AiAgentGroupManager.h"
 
 ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer.SetDefaultSubobjectClass<USDTPathFollowingComponent>(TEXT("PathFollowingComponent")))
@@ -129,6 +129,9 @@ void ASDTAIController::UpdateLoSOnPlayer()
         if (losHit.GetComponent()->GetCollisionObjectType() == COLLISION_PLAYER)
         {
             HasLoSOnPlayer = true;
+
+            AiAgentGroupManager* groupManager = AiAgentGroupManager::GetInstance();
+            groupManager->UpdatePlayerLKP(playerCharacter->GetActorLocation());
         }
     }
 }

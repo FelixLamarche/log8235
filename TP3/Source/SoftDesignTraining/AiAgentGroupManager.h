@@ -19,10 +19,16 @@ public:
 	void RegisterAIAgent(ASDTAIController* aiAgent);
 	void UnregisterAIAgent(ASDTAIController* aiAgent);
 
-	void DrawDebugGroup();
+	void UpdatePlayerLKP(FVector lkp);
+	bool AgentAtLKP();
+
+	void Disband();
+
+	void DrawDebugGroup(UWorld* World);
 
 private:
 	static AiAgentGroupManager* m_instance;
 
 	TArray<ASDTAIController*> m_registeredAgents;
+	FVector m_playerLKP;
 };
