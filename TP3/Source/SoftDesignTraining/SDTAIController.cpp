@@ -35,7 +35,7 @@ void ASDTAIController::GoToBestTarget(float deltaTime)
 
     case PlayerInteractionBehavior_Flee:
 
-        MoveToBestFleeLocation();
+        //MoveToBestFleeLocation();
 
         break;
     }

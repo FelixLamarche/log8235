@@ -50,6 +50,9 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
     bool IsInPursuitGroup = false;
 
+    const FName& GetBBKeyHasLoSOnPlayer() const { return m_BBKeyHasLoSOnPlayer; }
+    const FName& GetBBKeyTargetLocation() const { return m_BBKeyTargetLocation; }
+
 protected:
 
     enum PlayerInteractionBehavior
@@ -68,12 +71,12 @@ protected:
     bool HasLoSOnHit(const FHitResult& hit);
     void MoveToRandomCollectible();
     void MoveToPlayer();
-    void MoveToBestFleeLocation();
     void PlayerInteractionLoSUpdate();
     void OnPlayerInteractionNoLosDone();
     void OnMoveToTarget();
 
 public:
+    void MoveToBestFleeLocation();
     void UpdateLoSOnPlayer();
     virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
     void RotateTowards(const FVector& targetLocation);
@@ -85,6 +88,8 @@ private:
     virtual void UpdatePlayerInteraction(float deltaTime) override;
     virtual void ShowNavigationPath() override;
 
+    FName m_BBKeyHasLoSOnPlayer = TEXT("HasLoSOnPlayer");
+    FName m_BBKeyTargetLocation = TEXT("TargetLocation");
 
 protected:
     FVector m_JumpTarget;

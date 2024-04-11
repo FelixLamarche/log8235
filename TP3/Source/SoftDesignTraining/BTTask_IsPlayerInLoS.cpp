@@ -10,7 +10,7 @@ EBTNodeResult::Type UBTTask_IsPlayerInLoS::ExecuteTask(UBehaviorTreeComponent& O
 {
     if (ASDTAIController* aiController = Cast<ASDTAIController>(OwnerComp.GetAIOwner()))
     {
-        const FName hasLoSOnPlayerBBKey = TEXT("HasLoSOnPlayer");
+        const FName hasLoSOnPlayerBBKey = aiController->GetBBKeyHasLoSOnPlayer();
         if (OwnerComp.GetBlackboardComponent()->GetValue<UBlackboardKeyType_Bool>(hasLoSOnPlayerBBKey))
         {
             return EBTNodeResult::Succeeded;
