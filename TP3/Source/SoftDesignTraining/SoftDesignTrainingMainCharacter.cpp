@@ -6,6 +6,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
+#include "LoadBalancerManager.h"
+
 ASoftDesignTrainingMainCharacter::ASoftDesignTrainingMainCharacter()
 {
     m_IsPoweredUp = false;
@@ -22,6 +24,29 @@ ASoftDesignTrainingMainCharacter::ASoftDesignTrainingMainCharacter()
     m_TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
     m_TopDownCameraComponent->SetupAttachment(m_CameraBoom, USpringArmComponent::SocketName);
     m_TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm;
+}
+
+void ASoftDesignTrainingMainCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+    LoadBalancerManager* loadBalancerManager = LoadBalancerManager::GetInstance();
+    if (loadBalancerManager)
+    {
+		loadBalancerManager->RegisterPlayer(this);
+	}
+}
+
+void ASoftDesignTrainingMainCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    Super::EndPlay(EndPlayReason);
+
+	LoadBalancerManager* loadBalancerManager = LoadBalancerManager::GetInstance();
+    if (loadBalancerManager)
+    {
+		loadBalancerManager->UnregisterPlayer(this);
+	}
+
 }
 
 void ASoftDesignTrainingMainCharacter::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -52,3 +77,5 @@ void ASoftDesignTrainingMainCharacter::OnPowerUpDone()
 
     GetWorld()->GetTimerManager().ClearTimer(m_PowerUpTimer);
 }
+
+

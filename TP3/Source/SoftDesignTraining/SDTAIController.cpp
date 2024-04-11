@@ -10,6 +10,8 @@
 //#include "UnrealMathUtility.h"
 #include "SDTUtils.h"
 #include "EngineUtils.h"
+#include "LoadBalancerManager.h"
+#include "AiAgentGroupManager.h"
 
 ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer.SetDefaultSubobjectClass<USDTPathFollowingComponent>(TEXT("PathFollowingComponent")))
@@ -17,8 +19,35 @@ ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     m_PlayerInteractionBehavior = PlayerInteractionBehavior_Collect;
 }
 
+void ASDTAIController::BeginPlay()
+{
+    TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::BeginPlay);
+    Super::BeginPlay();
+
+    LoadBalancerManager* loadBalancerManager = LoadBalancerManager::GetInstance();
+    if (loadBalancerManager)
+    {
+        TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::RegisterNPC);
+        loadBalancerManager->RegisterNPC(this);
+    }
+}
+
+void ASDTAIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    Super::EndPlay(EndPlayReason);
+
+    LoadBalancerManager* loadBalancerManager = LoadBalancerManager::GetInstance();
+    if (loadBalancerManager)
+    {
+        loadBalancerManager->UnregisterNPC(this);
+    }
+
+
+}
+
 void ASDTAIController::GoToBestTarget(float deltaTime)
 {
+    TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::GoToBestTarget)
     switch (m_PlayerInteractionBehavior)
     {
     case PlayerInteractionBehavior_Collect:
@@ -100,6 +129,9 @@ void ASDTAIController::UpdateLoSOnPlayer()
         if (losHit.GetComponent()->GetCollisionObjectType() == COLLISION_PLAYER)
         {
             HasLoSOnPlayer = true;
+
+            AiAgentGroupManager* groupManager = AiAgentGroupManager::GetInstance();
+            groupManager->UpdatePlayerLKP(playerCharacter->GetActorLocation());
         }
     }
 }
@@ -234,6 +266,7 @@ void ASDTAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollow
 
 void ASDTAIController::ShowNavigationPath()
 {
+    TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::ShowNavigationPath)
     if (UPathFollowingComponent* pathFollowingComponent = GetPathFollowingComponent())
     {
         if (pathFollowingComponent->HasValidPath())
@@ -256,6 +289,7 @@ void ASDTAIController::ShowNavigationPath()
 
 void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
 {
+    TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::UpdatePlayerInteraction)
     //finish jump before updating AI state
     if (AtJumpSegment)
         return;
@@ -385,4 +419,87 @@ void ASDTAIController::UpdatePlayerInteractionBehavior(const FHitResult& detecti
         m_PlayerInteractionBehavior = currentBehavior;
         AIStateInterrupted();
     }
+}
+
+void ASDTAIController::UpdateIsActorOnCamera()
+{   
+    TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::UpdateIsActorOnCamera);
+	AActor* selfPawn = GetPawn();
+    
+    if (!selfPawn)
+        return;
+
+    // Su l'acteur a été rendu récemment, on met à jour la variable IsActorOnCamera à true
+    IsActorOnCamera = selfPawn->WasRecentlyRendered(1.5f);
+}
+
+void ASDTAIController::UpdateTickRateMovementComponent()
+{   
+    TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::UpdateTickRateMovementComponent);
+    APawn* selfPawn = GetPawn();
+
+    if (!selfPawn)
+		return;
+
+    UCharacterMovementComponent* movementComponent = selfPawn->FindComponentByClass<UCharacterMovementComponent>();
+    if (movementComponent)
+    {   
+        // Si l'acteur est sur la caméra ou qu'il est dans le groupe de poursuite, on met à jour le tick rate du mouvement component à 0
+        if (IsActorOnCamera || IsInPursuitGroup)
+        {
+			movementComponent->SetComponentTickInterval(0.f);
+		}
+        else
+        {
+			movementComponent->SetComponentTickInterval(2.f);
+		}
+	}
+}
+
+void ASDTAIController::UpdateTickRateSKinMeshComponent()
+{
+	TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::UpdateTickRateSKinMeshComponent);
+    APawn* selfPawn = GetPawn();
+
+    if (!selfPawn)
+        return;
+
+	USkeletalMeshComponent* skinMeshComponent = selfPawn->FindComponentByClass<USkeletalMeshComponent>();
+    if (skinMeshComponent)
+    {
+        if (IsActorOnCamera)
+        {
+			skinMeshComponent->SetComponentTickInterval(0.f);
+		}
+        else
+        {
+			skinMeshComponent->SetComponentTickInterval(2.f);
+		}
+	}
+}
+
+void ASDTAIController::Tick(float deltaTime)
+{
+	TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::Tick);
+	Super::Tick(deltaTime);
+
+    bool oldIsActorOnCamera = IsActorOnCamera; // Added to store the old value of IsActorOnCamera
+
+    UpdateIsActorOnCamera(); // Added to update the IsActorOnCamera variable
+
+    if (oldIsActorOnCamera != IsActorOnCamera) // Added to update the tick rate of the movement component only when the value of IsActorOnCamera changes
+    {		
+        UpdateTickRateMovementComponent(); // Added to update the tick rate of the movement component
+        UpdateTickRateSKinMeshComponent(); // Added to update the tick rate of the skin mesh component
+	}
+
+
+    if (m_ReachedTarget)
+    {
+		GoToBestTarget(deltaTime);
+	}
+    else if (IsActorOnCamera) // 'else if' added to avoid calling ShowNavigationPath() when the actor is not on camera
+    {
+		ShowNavigationPath();
+	}
 }

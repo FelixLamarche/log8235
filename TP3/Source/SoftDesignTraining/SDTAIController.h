@@ -17,6 +17,22 @@ class SOFTDESIGNTRAINING_API ASDTAIController : public ASDTBaseAIController
 public:
     ASDTAIController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+
+    virtual void UpdatePlayerInteraction(float deltaTime) override;
+
+    virtual void Tick(float deltaTime) override;
+
+    virtual void ShowNavigationPath() override;
+
+    virtual void GoToBestTarget(float deltaTime) override;
+
+
+    void UpdateTickRateMovementComponent();
+    void UpdateTickRateSKinMeshComponent();
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
     float m_DetectionCapsuleHalfLength = 500.f;
 
@@ -50,6 +66,10 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
     bool IsInPursuitGroup = false;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
+    bool IsActorOnCamera = false;
+
+
     const FName& GetBBKeyHasLoSOnPlayer() const { return m_BBKeyHasLoSOnPlayer; }
     const FName& GetBBKeyTargetLocation() const { return m_BBKeyTargetLocation; }
 
@@ -74,6 +94,8 @@ protected:
     void PlayerInteractionLoSUpdate();
     void OnPlayerInteractionNoLosDone();
     void OnMoveToTarget();
+    
+    void UpdateIsActorOnCamera();
 
 public:
     void MoveToBestFleeLocation();
@@ -83,17 +105,13 @@ public:
     void SetActorLocation(const FVector& targetLocation);
     void AIStateInterrupted();
 
-private:
-    virtual void GoToBestTarget(float deltaTime) override;
-    virtual void UpdatePlayerInteraction(float deltaTime) override;
-    virtual void ShowNavigationPath() override;
-
-    FName m_BBKeyHasLoSOnPlayer = TEXT("HasLoSOnPlayer");
-    FName m_BBKeyTargetLocation = TEXT("TargetLocation");
-
 protected:
     FVector m_JumpTarget;
     FRotator m_ObstacleAvoidanceRotation;
     FTimerHandle m_PlayerInteractionNoLosTimer;
     PlayerInteractionBehavior m_PlayerInteractionBehavior;
+
+private:
+    FName m_BBKeyHasLoSOnPlayer = TEXT("HasLoSOnPlayer");
+    FName m_BBKeyTargetLocation = TEXT("TargetLocation");
 };
