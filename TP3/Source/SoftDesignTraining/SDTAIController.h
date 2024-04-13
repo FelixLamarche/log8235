@@ -72,6 +72,9 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
     AActor* playerCharacter;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
+    FVector positioning;
+
     const FName& GetBBKeyHasLoSOnPlayer() const { return m_BBKeyHasLoSOnPlayer; }
     const FName& GetBBKeyTargetLocation() const { return m_BBKeyTargetLocation; }
 
