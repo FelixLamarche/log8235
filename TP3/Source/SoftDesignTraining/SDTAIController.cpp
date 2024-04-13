@@ -23,7 +23,7 @@ void ASDTAIController::BeginPlay()
 {
     TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::BeginPlay);
     Super::BeginPlay();
-
+    playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     LoadBalancerManager* loadBalancerManager = LoadBalancerManager::GetInstance();
     if (loadBalancerManager)
     {
@@ -101,7 +101,6 @@ void ASDTAIController::MoveToRandomCollectible()
 
 void ASDTAIController::MoveToPlayer()
 {
-    ACharacter * playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
         return;
 
@@ -111,7 +110,6 @@ void ASDTAIController::MoveToPlayer()
 
 void ASDTAIController::UpdateLoSOnPlayer()
 {
-    ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
         return;
 
@@ -139,7 +137,6 @@ void ASDTAIController::UpdateLoSOnPlayer()
 void ASDTAIController::PlayerInteractionLoSUpdate()
 {
     // REMOVE THIS FUNCTION ONCE BEHAVIOUR IS IN THE BEHAVIOUR TREE
-    ACharacter * playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
         return;
 
@@ -197,7 +194,6 @@ void ASDTAIController::MoveToBestFleeLocation()
     float bestLocationScore = 0.f;
     ASDTFleeLocation* bestFleeLocation = nullptr;
 
-    ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
         return;
 
@@ -298,7 +294,6 @@ void ASDTAIController::UpdatePlayerInteraction(float deltaTime)
     if (!selfPawn)
         return;
 
-    ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
         return;
 
