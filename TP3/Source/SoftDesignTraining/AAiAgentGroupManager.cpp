@@ -90,45 +90,6 @@ void AAiAgentGroupManager::Destroy()
 //     return agentPosition;
 // }
 
-FVector AAiAgentGroupManager::CalculateAgentPosition(int i, float radius, float angleBetweenAgents, float agentRadius)
-{
-    // Calculate the agent's position
-    FVector agentPosition;
-    agentPosition.X = m_playerLKP.X + radius * cos(i * angleBetweenAgents);
-    agentPosition.Y = m_playerLKP.Y + radius * sin(i * angleBetweenAgents);
-    agentPosition.Z = m_playerLKP.Z; // Change this if you want the agents to be at a different height
-
-    // Calculate the offset vector from the player's last known position to the agent's position
-    FVector offsetVector = (agentPosition - m_playerLKP).GetSafeNormal() * agentRadius;
-
-    // Add the offset vector to the agent's position
-    agentPosition += offsetVector;
-
-    // Get the navigation system
-    UNavigationSystemV1* navSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(this->GetWorld());
-
-    // Project the agent's position to the nearest navigable area within a radius
-    FNavLocation navLocation;
-    bool isPointFound = navSystem->ProjectPointToNavigation(agentPosition, navLocation, FVector(agentRadius));
-
-    // If a navigable point is found, set the agent's position to it
-    if (isPointFound)
-    {
-        agentPosition = navLocation.Location;
-    }
-    else
-    {
-        // If the point is pushed outside the navigable area, set the agent's position to the edge of the navigable area
-        isPointFound = navSystem->ProjectPointToNavigation(agentPosition, navLocation, FVector::ZeroVector);
-        if (isPointFound)
-        {
-            agentPosition = navLocation.Location;
-        }
-    }
-
-    return agentPosition;
-}
-
 void AAiAgentGroupManager::RegisterAIAgent(ASDTAIController *aiAgent)
 {
     m_registeredAgents.Add(aiAgent);
@@ -137,28 +98,115 @@ void AAiAgentGroupManager::RegisterAIAgent(ASDTAIController *aiAgent)
 
     float radius = 250.0f; 
 
-    // Calculate the total radius required for all agents
     float totalRadiusRequired = m_registeredAgents.Num() * aiAgent->GetSimpleCollisionRadius() * 2;
 
-    // If the total radius required is greater than the current radius, increase the current radius
     if (totalRadiusRequired > radius)
     {
         radius = totalRadiusRequired;
     }
 
-    // Assign each agent a position around the player
     int i = 0;
     for (ASDTAIController *agent : m_registeredAgents)
     {
-        // Calculate and assign the agent's position
         agent->positioning = CalculateAgentPosition(i, radius, angleBetweenAgents, aiAgent->GetSimpleCollisionRadius());
-
         i++;
     }
 
-    // Update tick rate of the agent
     aiAgent->UpdateTickRateMovementComponent();
     aiAgent->UpdateTickRateSKinMeshComponent();
+}
+
+FVector AAiAgentGroupManager::CalculateAgentPosition(int i, float radius, float angleBetweenAgents, float agentRadius)
+{
+    FVector agentPosition;
+    agentPosition.X = m_playerLKP.X + radius * cos(i * angleBetweenAgents);
+    agentPosition.Y = m_playerLKP.Y + radius * sin(i * angleBetweenAgents);
+    agentPosition.Z = m_playerLKP.Z;
+
+    agentPosition += CalculateOffsetVector(agentPosition, agentRadius);
+    agentPosition = HandleLineTrace(agentPosition,agentRadius);
+    agentPosition = HandleAgentProximity(agentPosition, agentRadius);
+    agentPosition = HandleWallProximity(agentPosition, agentRadius);
+    agentPosition = ProjectToNavigation(agentPosition, agentRadius);
+
+    return agentPosition;
+}
+
+FVector AAiAgentGroupManager::CalculateOffsetVector(FVector agentPosition, float agentRadius)
+{
+    return (agentPosition - m_playerLKP).GetSafeNormal() * agentRadius;
+}
+
+FVector AAiAgentGroupManager::HandleLineTrace(FVector agentPosition, float agentRadius)
+{
+    FHitResult hitResult;
+    bool isHit = this->GetWorld()->LineTraceSingleByChannel(
+        hitResult,
+        m_playerLKP,
+        agentPosition,
+        ECC_Visibility
+    );
+
+    if (isHit)
+    {
+        FVector direction = (hitResult.ImpactPoint - agentPosition).GetSafeNormal();
+        agentPosition = hitResult.ImpactPoint - direction * agentRadius;
+    }
+
+    return agentPosition;
+}
+
+FVector AAiAgentGroupManager::HandleAgentProximity(FVector agentPosition, float agentRadius)
+{
+    for (ASDTAIController* otherAgent : m_registeredAgents)
+    {
+        if (FVector::Dist(agentPosition, otherAgent->positioning) < agentRadius)
+        {
+            FVector direction = (otherAgent->positioning - m_playerLKP).GetSafeNormal();
+            agentPosition = otherAgent->positioning - direction * agentRadius;
+        }
+    }
+
+    return agentPosition;
+}
+
+FVector AAiAgentGroupManager::HandleWallProximity(FVector agentPosition, float agentRadius)
+{
+    FHitResult wallHitResult;
+    bool isWallHit = GetWorld()->LineTraceSingleByChannel(
+        wallHitResult,
+        agentPosition,
+        agentPosition + FVector(0, 0, -1) * agentRadius,
+        ECC_WorldStatic
+    );
+
+    if (isWallHit)
+    {
+        FVector direction = (wallHitResult.ImpactPoint - m_playerLKP).GetSafeNormal();
+        agentPosition = wallHitResult.ImpactPoint - direction * agentRadius;
+    }
+
+    return agentPosition;
+}
+
+FVector AAiAgentGroupManager::ProjectToNavigation(FVector agentPosition, float agentRadius)
+{
+    UNavigationSystemV1* navSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(this->GetWorld());
+
+    FNavLocation navLocation;
+    bool isPointFound = navSystem->ProjectPointToNavigation(agentPosition, navLocation, FVector(agentRadius));
+
+    if (isPointFound)
+    {
+        agentPosition = navLocation.Location;
+    }
+    else
+    {
+        FVector direction = (navLocation.Location - m_playerLKP).GetSafeNormal();
+        agentPosition = navLocation.Location - direction * agentRadius;
+    }
+
+    return agentPosition;
 }
 
 void AAiAgentGroupManager::UnregisterAIAgent(ASDTAIController *aiAgent)

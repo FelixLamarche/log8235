@@ -489,16 +489,20 @@ void ASDTAIController::Tick(float deltaTime)
         UpdateTickRateMovementComponent(); // Added to update the tick rate of the movement component
         UpdateTickRateSKinMeshComponent(); // Added to update the tick rate of the skin mesh component
 	}
+    APawn* selfPawn = GetPawn();
+    float radius = 50.0f; // default radius
+
+    radius = selfPawn->GetSimpleCollisionRadius();
     DrawDebugSphere(
         GetWorld(), 
-        positioning, // The center of the sphere
-        50.0f, // The radius of the sphere
-        12, // The number of segments to use for the sphere
-        FColor::Blue, // The color of the sphere
+        positioning,
+        radius,
+        12,
+        FColor::Blue,
         false, 
-        -1, // The duration to keep the sphere on screen
+        -1,
         0, 
-        1 // The thickness of the lines drawing the sphere
+        1
     );
 
     if (m_ReachedTarget)

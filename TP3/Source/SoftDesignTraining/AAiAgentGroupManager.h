@@ -26,7 +26,12 @@ public:
 
 	void Disband();
 	FVector CalculateAgentPosition(int i, float radius, float angleBetweenAgents, float agentRadius);
-
+    FVector CalculateOffsetVector(FVector agentPosition, float agentRadius);
+    FVector HandleLineTrace(FVector agentPosition, float agentRadius);
+    FVector HandleAgentProximity(FVector agentPosition, float agentRadius);
+    FVector HandleWallProximity(FVector agentPosition, float agentRadius);
+    FVector ProjectToNavigation(FVector agentPosition, float agentRadius);
+	
 	void DrawDebugGroup(UWorld *World);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
 	TSet<ASDTAIController *> m_registeredAgents;
