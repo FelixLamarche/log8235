@@ -15,22 +15,25 @@ class SOFTDESIGNTRAINING_API AAiAgentGroupManager : public AActor
 public:
 	AAiAgentGroupManager();
 
-	static AAiAgentGroupManager* GetInstance();
+	static AAiAgentGroupManager *GetInstance();
 	static void Destroy();
 
-	void RegisterAIAgent(ASDTAIController* aiAgent);
-	void UnregisterAIAgent(ASDTAIController* aiAgent);
+	void RegisterAIAgent(ASDTAIController *aiAgent);
+	void UnregisterAIAgent(ASDTAIController *aiAgent);
 
 	void UpdatePlayerLKP(FVector lkp);
 	bool AgentAtLKP();
 
 	void Disband();
+	FVector CalculateAgentPosition(int i, float radius, float angleBetweenAgents, float agentRadius);
 
-	void DrawDebugGroup(UWorld* World);
-
-private:
-	static AAiAgentGroupManager* m_instance;
-
-	TSet<ASDTAIController*> m_registeredAgents;
+	void DrawDebugGroup(UWorld *World);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
+	TSet<ASDTAIController *> m_registeredAgents;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AI)
 	FVector m_playerLKP;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
+	TArray<FVector> m_CirclePositions;
+private:
+	static AAiAgentGroupManager *m_instance;
 };
