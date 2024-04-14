@@ -29,6 +29,9 @@ public:
 
     virtual void GoToBestTarget(float deltaTime) override;
 
+    void SetClosestCollectibleAsTarget();
+    void SetBestFleeLocationAsTarget();
+
 
     void UpdateTickRateMovementComponent();
     void UpdateTickRateSKinMeshComponent();
@@ -69,9 +72,12 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
     bool IsActorOnCamera = false;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
+    FVector TargetLocation = FVector::ZeroVector;
 
     const FName& GetBBKeyHasLoSOnPlayer() const { return m_BBKeyHasLoSOnPlayer; }
     const FName& GetBBKeyTargetLocation() const { return m_BBKeyTargetLocation; }
+    const FName& GetBBKeyIsInPursuitGroup() const { return m_BBKeyIsInPursuitGroup; }
 
 protected:
 
@@ -114,4 +120,5 @@ protected:
 private:
     FName m_BBKeyHasLoSOnPlayer = TEXT("HasLoSOnPlayer");
     FName m_BBKeyTargetLocation = TEXT("TargetLocation");
+    FName m_BBKeyIsInPursuitGroup = TEXT("IsInPursuitGroup");
 };

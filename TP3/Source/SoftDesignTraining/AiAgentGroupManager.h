@@ -20,6 +20,7 @@ public:
 	void UnregisterAIAgent(ASDTAIController* aiAgent);
 
 	void UpdatePlayerLKP(FVector lkp);
+	FVector GetPlayerLKP() const { return m_playerLKP; }
 	bool AgentAtLKP();
 
 	void Disband();
