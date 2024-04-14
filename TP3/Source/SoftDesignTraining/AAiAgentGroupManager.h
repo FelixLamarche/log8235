@@ -8,7 +8,7 @@
 #include "AAiAgentGroupManager.generated.h"
 
 UCLASS()
-class SOFTDESIGNTRAINING_API AAiAgentGroupManager: AActor
+class SOFTDESIGNTRAINING_API AAiAgentGroupManager : public AActor
 {
 	GENERATED_BODY()
 
@@ -31,6 +31,6 @@ public:
 private:
 	static AAiAgentGroupManager* m_instance;
 
-	TArray<ASDTAIController*> m_registeredAgents;
+	TSet<ASDTAIController*> m_registeredAgents;
 	FVector m_playerLKP;
 };

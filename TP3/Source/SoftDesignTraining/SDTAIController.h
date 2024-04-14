@@ -75,8 +75,6 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
     FVector positioning;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
-    static TArray<FVector>AllMYYYPoints;
 
     const FName& GetBBKeyHasLoSOnPlayer() const { return m_BBKeyHasLoSOnPlayer; }
     const FName& GetBBKeyTargetLocation() const { return m_BBKeyTargetLocation; }
