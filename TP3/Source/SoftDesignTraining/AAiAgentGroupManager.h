@@ -4,16 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "SDTAIController.h"
+#include "GameFramework/Actor.h"
+#include "AAiAgentGroupManager.generated.h"
 
-/**
- * 
- */
-class SOFTDESIGNTRAINING_API AiAgentGroupManager
+UCLASS()
+class SOFTDESIGNTRAINING_API AAiAgentGroupManager: AActor
 {
-public:
-	AiAgentGroupManager();
+	GENERATED_BODY()
 
-	static AiAgentGroupManager* GetInstance();
+public:
+	AAiAgentGroupManager();
+
+	static AAiAgentGroupManager* GetInstance();
 	static void Destroy();
 
 	void RegisterAIAgent(ASDTAIController* aiAgent);
@@ -27,7 +29,7 @@ public:
 	void DrawDebugGroup(UWorld* World);
 
 private:
-	static AiAgentGroupManager* m_instance;
+	static AAiAgentGroupManager* m_instance;
 
 	TArray<ASDTAIController*> m_registeredAgents;
 	FVector m_playerLKP;

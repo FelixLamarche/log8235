@@ -1,31 +1,31 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AiAgentGroupManager.h"
+#include "AAiAgentGroupManager.h"
 
-AiAgentGroupManager* AiAgentGroupManager::m_instance;
+AAiAgentGroupManager* AAiAgentGroupManager::m_instance;
 
-AiAgentGroupManager::AiAgentGroupManager()
+AAiAgentGroupManager::AAiAgentGroupManager()
 {
 }
 
-AiAgentGroupManager* AiAgentGroupManager::GetInstance()
+AAiAgentGroupManager* AAiAgentGroupManager::GetInstance()
 {
     if (!m_instance)
     {
-        m_instance = new AiAgentGroupManager();
+        m_instance = new AAiAgentGroupManager();
     }
 
     return m_instance;
 }
 
-void AiAgentGroupManager::Destroy()
+void AAiAgentGroupManager::Destroy()
 {
 	delete m_instance;
     m_instance = nullptr;
 }
 
-void AiAgentGroupManager::RegisterAIAgent(ASDTAIController* aiAgent)
+void AAiAgentGroupManager::RegisterAIAgent(ASDTAIController* aiAgent)
 {
     m_registeredAgents.Add(aiAgent);
     aiAgent->IsInPursuitGroup = true;
@@ -35,7 +35,7 @@ void AiAgentGroupManager::RegisterAIAgent(ASDTAIController* aiAgent)
 
 }
 
-void AiAgentGroupManager::UnregisterAIAgent(ASDTAIController* aiAgent)
+void AAiAgentGroupManager::UnregisterAIAgent(ASDTAIController* aiAgent)
 {
     m_registeredAgents.Remove(aiAgent);
     aiAgent->IsInPursuitGroup = false;
@@ -44,12 +44,12 @@ void AiAgentGroupManager::UnregisterAIAgent(ASDTAIController* aiAgent)
     aiAgent->UpdateTickRateSKinMeshComponent();
 }
 
-void AiAgentGroupManager::UpdatePlayerLKP(FVector lkp)
+void AAiAgentGroupManager::UpdatePlayerLKP(FVector lkp)
 {
     m_playerLKP = lkp;
 }
 
-bool AiAgentGroupManager::AgentAtLKP()
+bool AAiAgentGroupManager::AgentAtLKP()
 {
     for (auto agent : m_registeredAgents)
     {
@@ -61,7 +61,7 @@ bool AiAgentGroupManager::AgentAtLKP()
     return false;
 }
 
-void AiAgentGroupManager::Disband()
+void AAiAgentGroupManager::Disband()
 {
     for (auto agent : m_registeredAgents)
     {
@@ -69,9 +69,9 @@ void AiAgentGroupManager::Disband()
     }
 }
 
-void AiAgentGroupManager::DrawDebugGroup(UWorld* world)
+void AAiAgentGroupManager::DrawDebugGroup(UWorld* world)
 {
-    TRACE_CPUPROFILER_EVENT_SCOPE(AiAgentGroupManager::DrawDebugGroup);
+    TRACE_CPUPROFILER_EVENT_SCOPE(AAiAgentGroupManager::DrawDebugGroup);
 
     for(int i=0; i < m_registeredAgents.Num(); i++)
     {
