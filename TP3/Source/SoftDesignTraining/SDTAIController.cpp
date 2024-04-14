@@ -64,10 +64,43 @@ void ASDTAIController::GoToBestTarget(float deltaTime)
 
     case PlayerInteractionBehavior_Flee:
 
-        //MoveToBestFleeLocation();
+        MoveToBestFleeLocation();
 
         break;
     }
+}
+
+void ASDTAIController::SetClosestCollectibleAsTarget()
+{
+    float closestSqrCollectibleDistance = 9999999999999.9f;
+    ASDTCollectible* closestCollectible = nullptr;
+
+    TArray<AActor*> foundCollectibles;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASDTCollectible::StaticClass(), foundCollectibles);
+
+    // Find the closest collectible
+    for (int i = 0; i < foundCollectibles.Num(); i++)
+    {
+        ASDTCollectible* collectibleActor = Cast<ASDTCollectible>(foundCollectibles[i]);
+		if (!collectibleActor)
+			continue;
+
+        if (!collectibleActor->IsOnCooldown())
+        {
+			float sqrDist = FVector::DistSquared(foundCollectibles[i]->GetActorLocation(), GetPawn()->GetActorLocation());
+            if (sqrDist < closestSqrCollectibleDistance)
+            {
+				closestSqrCollectibleDistance = sqrDist;
+				closestCollectible = collectibleActor;
+			}
+		}
+    }
+
+    // Move to the collectible
+    if (closestCollectible)
+    {
+        TargetLocation = closestCollectible->GetActorLocation();
+	}
 }
 
 void ASDTAIController::MoveToRandomCollectible()
@@ -132,7 +165,15 @@ void ASDTAIController::UpdateLoSOnPlayer()
 
             groupManager->UpdatePlayerLKP(playerCharacter->GetActorLocation());
             groupManager->RegisterAIAgent(this);
+
+            TargetLocation = playerCharacter->GetActorLocation();
         }
+    }
+
+    if (!HasLoSOnPlayer && IsInPursuitGroup)
+    {
+        // Set target as the last known position of the player
+        TargetLocation = groupManager->GetPlayerLKP();
     }
 }
 
@@ -188,6 +229,47 @@ void ASDTAIController::OnPlayerInteractionNoLosDone()
     {
         AIStateInterrupted();
         m_PlayerInteractionBehavior = PlayerInteractionBehavior_Collect;
+    }
+}
+
+void ASDTAIController::SetBestFleeLocationAsTarget()
+{
+    float bestLocationScore = 0.f;
+    ASDTFleeLocation* bestFleeLocation = nullptr;
+
+    ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+    if (!playerCharacter)
+        return;
+
+    for (TActorIterator<ASDTFleeLocation> actorIterator(GetWorld(), ASDTFleeLocation::StaticClass()); actorIterator; ++actorIterator)
+    {
+        ASDTFleeLocation* fleeLocation = Cast<ASDTFleeLocation>(*actorIterator);
+        if (fleeLocation)
+        {
+            float distToFleeLocation = FVector::Dist(fleeLocation->GetActorLocation(), playerCharacter->GetActorLocation());
+
+            FVector selfToPlayer = playerCharacter->GetActorLocation() - GetPawn()->GetActorLocation();
+            selfToPlayer.Normalize();
+
+            FVector selfToFleeLocation = fleeLocation->GetActorLocation() - GetPawn()->GetActorLocation();
+            selfToFleeLocation.Normalize();
+
+            float fleeLocationToPlayerAngle = FMath::RadiansToDegrees(acosf(FVector::DotProduct(selfToPlayer, selfToFleeLocation)));
+            float locationScore = distToFleeLocation + fleeLocationToPlayerAngle * 100.f;
+
+            if (locationScore > bestLocationScore)
+            {
+                bestLocationScore = locationScore;
+                bestFleeLocation = fleeLocation;
+            }
+
+            DrawDebugString(GetWorld(), FVector(0.f, 0.f, 10.f), FString::SanitizeFloat(locationScore), fleeLocation, FColor::Red, 5.f, false);
+        }
+    }
+
+    if (bestFleeLocation)
+    {
+        TargetLocation = bestFleeLocation->GetActorLocation();
     }
 }
 
@@ -507,10 +589,10 @@ void ASDTAIController::Tick(float deltaTime)
 
     if (m_ReachedTarget)
     {
-		GoToBestTarget(deltaTime);
+		//GoToBestTarget(deltaTime);
 	}
     else if (IsActorOnCamera) // 'else if' added to avoid calling ShowNavigationPath() when the actor is not on camera
     {
-		ShowNavigationPath();
+		//ShowNavigationPath();
 	}
 }
