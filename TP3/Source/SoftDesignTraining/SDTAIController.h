@@ -73,6 +73,11 @@ public:
     bool IsActorOnCamera = false;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
+    AActor* playerCharacter;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = AI)
+    FVector positioning;
+
     FVector TargetLocation = FVector::ZeroVector;
 
     const FName& GetBBKeyHasLoSOnPlayer() const { return m_BBKeyHasLoSOnPlayer; }

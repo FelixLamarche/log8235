@@ -11,7 +11,7 @@
 #include "SDTUtils.h"
 #include "EngineUtils.h"
 #include "LoadBalancerManager.h"
-#include "AiAgentGroupManager.h"
+#include "AAiAgentGroupManager.h"
 
 ASDTAIController::ASDTAIController(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer.SetDefaultSubobjectClass<USDTPathFollowingComponent>(TEXT("PathFollowingComponent")))
@@ -23,7 +23,7 @@ void ASDTAIController::BeginPlay()
 {
     TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::BeginPlay);
     Super::BeginPlay();
-
+    playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     LoadBalancerManager* loadBalancerManager = LoadBalancerManager::GetInstance();
     if (loadBalancerManager)
     {
@@ -47,7 +47,6 @@ void ASDTAIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ASDTAIController::UpdateLoSOnPlayer()
 {
-    ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
         return;
 
@@ -62,14 +61,14 @@ void ASDTAIController::UpdateLoSOnPlayer()
     bool LoSOnPlayer = false;
     HasLoSOnPlayer = false;
 
-    AiAgentGroupManager* groupManager = AiAgentGroupManager::GetInstance();
+    AAiAgentGroupManager* groupManager = AAiAgentGroupManager::GetInstance();
     if (losHit.GetComponent())
     {
         if (losHit.GetComponent()->GetCollisionObjectType() == COLLISION_PLAYER)
         {
             LoSOnPlayer = true;
             groupManager->UpdatePlayerLKP(playerCharacter->GetActorLocation());
-
+            groupManager->RegisterAIAgent(this);
             TargetLocation = playerCharacter->GetActorLocation();
         }
     }
@@ -136,7 +135,7 @@ void ASDTAIController::SetBestFleeLocationAsTarget()
     float bestLocationScore = 0.f;
     ASDTFleeLocation* bestFleeLocation = nullptr;
 
-    ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+    //ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
         return;
 
@@ -225,7 +224,7 @@ void ASDTAIController::UpdateIsActorOnCamera()
     if (!selfPawn)
         return;
 
-    // Su l'acteur a été rendu récemment, on met à jour la variable IsActorOnCamera à true
+    // Su l'acteur a ï¿½tï¿½ rendu rï¿½cemment, on met ï¿½ jour la variable IsActorOnCamera ï¿½ true
     IsActorOnCamera = selfPawn->WasRecentlyRendered(1.5f);
 }
 
@@ -240,7 +239,7 @@ void ASDTAIController::UpdateTickRateMovementComponent()
     UCharacterMovementComponent* movementComponent = selfPawn->FindComponentByClass<UCharacterMovementComponent>();
     if (movementComponent)
     {   
-        // Si l'acteur est sur la caméra ou qu'il est dans le groupe de poursuite, on met à jour le tick rate du mouvement component à 0
+        // Si l'acteur est sur la camï¿½ra ou qu'il est dans le groupe de poursuite, on met ï¿½ jour le tick rate du mouvement component ï¿½ 0
         if (IsActorOnCamera || IsInPursuitGroup)
         {
 			movementComponent->SetComponentTickInterval(0.f);
@@ -288,7 +287,21 @@ void ASDTAIController::Tick(float deltaTime)
         UpdateTickRateMovementComponent(); // Added to update the tick rate of the movement component
         UpdateTickRateSKinMeshComponent(); // Added to update the tick rate of the skin mesh component
 	}
+    APawn* selfPawn = GetPawn();
+    float radius = 50.0f; // default radius
 
+    radius = selfPawn->GetSimpleCollisionRadius();
+    DrawDebugSphere(
+        GetWorld(), 
+        positioning,
+        radius,
+        12,
+        FColor::Blue,
+        false, 
+        -1,
+        0, 
+        1
+    );
 
     ShowNavigationPath();
  //   if (m_ReachedTarget)
@@ -300,10 +313,14 @@ void ASDTAIController::Tick(float deltaTime)
 	//	//ShowNavigationPath();
 	//}
 }
-
 void ASDTAIController::AIStateInterrupted()
 {
     StopMovement();
+    AAiAgentGroupManager* groupManager = AAiAgentGroupManager::GetInstance();
+    if (groupManager)
+	{
+		groupManager->UnregisterAIAgent(this);
+	}
     m_ReachedTarget = true;
 }
 
