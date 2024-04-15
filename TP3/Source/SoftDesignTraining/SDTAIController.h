@@ -21,13 +21,13 @@ public:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
-    virtual void UpdatePlayerInteraction(float deltaTime) override;
+    //virtual void UpdatePlayerInteraction(float deltaTime) override;
 
     virtual void Tick(float deltaTime) override;
 
     virtual void ShowNavigationPath() override;
 
-    virtual void GoToBestTarget(float deltaTime) override;
+    //virtual void GoToBestTarget(float deltaTime) override;
 
     void SetClosestCollectibleAsTarget();
     void SetBestFleeLocationAsTarget();
@@ -96,22 +96,22 @@ protected:
     UPROPERTY(EditAnywhere, category = Behavior)
     UBehaviorTree* m_aiBehaviorTree;
 
-    void GetHightestPriorityDetectionHit(const TArray<FHitResult>& hits, FHitResult& outDetectionHit);
-    void UpdatePlayerInteractionBehavior(const FHitResult& detectionHit, float deltaTime);
-    PlayerInteractionBehavior GetCurrentPlayerInteractionBehavior(const FHitResult& hit);
-    bool HasLoSOnHit(const FHitResult& hit);
-    void MoveToRandomCollectible();
-    void MoveToPlayer();
-    void PlayerInteractionLoSUpdate();
-    void OnPlayerInteractionNoLosDone();
-    void OnMoveToTarget();
+    //void GetHightestPriorityDetectionHit(const TArray<FHitResult>& hits, FHitResult& outDetectionHit);
+    //void UpdatePlayerInteractionBehavior(const FHitResult& detectionHit, float deltaTime);
+    //PlayerInteractionBehavior GetCurrentPlayerInteractionBehavior(const FHitResult& hit);
+    //bool HasLoSOnHit(const FHitResult& hit);
+    //void MoveToRandomCollectible();
+    //void MoveToPlayer();
+    //void PlayerInteractionLoSUpdate();
+    //void OnPlayerInteractionNoLosDone();
+    //void OnMoveToTarget();
     
     void UpdateIsActorOnCamera();
 
 public:
-    void MoveToBestFleeLocation();
+    //void MoveToBestFleeLocation();
     void UpdateLoSOnPlayer();
-    virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
+    //virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
     void RotateTowards(const FVector& targetLocation);
     void SetActorLocation(const FVector& targetLocation);
     void AIStateInterrupted();
