@@ -97,7 +97,8 @@ void LoadBalancerManager::TickWorld(UWorld* World, ELevelTick TickType, float De
 		if (ASDTAIController* ai = Cast<ASDTAIController>(m_NPCList[m_UpdateIndex]))
 		{	
 			// Update de l'interaction avec le joueur
-			ai->UpdateLoSOnPlayer();
+			//ai->UpdateLoSOnPlayer();
+			ai->ShowNavigationPath();
 
 		}
 
@@ -112,8 +113,5 @@ void LoadBalancerManager::TickWorld(UWorld* World, ELevelTick TickType, float De
 		// Mise à jour du temps écoulé
 		ElapsedTime = FPlatformTime::Seconds() - StartTime;
 	}
-
-	
-
 	
 }

@@ -290,7 +290,7 @@ void ASDTAIController::Tick(float deltaTime)
 	}
 
 
-    //ShowNavigationPath();
+    ShowNavigationPath();
  //   if (m_ReachedTarget)
  //   {
 	//	//GoToBestTarget(deltaTime);
