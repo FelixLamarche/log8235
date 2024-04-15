@@ -99,10 +99,10 @@ void LoadBalancerManager::TickWorld(UWorld* World, ELevelTick TickType, float De
 		if (ASDTAIController* ai = Cast<ASDTAIController>(m_NPCList[m_UpdateIndex]))
 		{	
 			// Update de l'interaction avec le joueur
-			//ai->UpdateLoSOnPlayer();
+			ai->UpdateLoSOnPlayer();
 
-			UBehaviorTreeComponent* comp = (UBehaviorTreeComponent *) ai->GetComponentByClass(UBehaviorTreeComponent::StaticClass());
-			comp->ScheduleNextTick(FLT_MAX);
+			/*UBehaviorTreeComponent* comp = (UBehaviorTreeComponent *) ai->GetComponentByClass(UBehaviorTreeComponent::StaticClass());
+			comp->ScheduleNextTick(FLT_MAX);*/
 			//comp->GetBlackboardComponent()->TickComponent(DeltaSeconds, ELevelTick::LEVELTICK_All, NULL);
 
 		}

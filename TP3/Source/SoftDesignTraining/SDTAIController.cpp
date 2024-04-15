@@ -47,15 +47,20 @@ void ASDTAIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ASDTAIController::UpdateLoSOnPlayer()
 {
+    TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::UpdateLoSOnPlayer);
     if (!playerCharacter)
         return;
+    const float SIGHT_MAX_DISTANCE = 1000.0f;
 
     TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjectTypes;
     TraceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
     TraceObjectTypes.Add(UEngineTypes::ConvertToObjectType(COLLISION_PLAYER));
 
     FHitResult losHit;
-    GetWorld()->LineTraceSingleByObjectType(losHit, GetPawn()->GetActorLocation(), playerCharacter->GetActorLocation(), TraceObjectTypes);
+    const FVector playerLocation = playerCharacter->GetActorLocation();
+    const FVector selfLocation = GetPawn()->GetActorLocation();
+    bool isAgentCloseEnough = FVector::Dist(selfLocation, playerLocation) < SIGHT_MAX_DISTANCE;
+    GetWorld()->LineTraceSingleByObjectType(losHit, selfLocation, playerLocation, TraceObjectTypes);
 
 
     bool LoSOnPlayer = false;
@@ -64,7 +69,7 @@ void ASDTAIController::UpdateLoSOnPlayer()
     AAiAgentGroupManager* groupManager = AAiAgentGroupManager::GetInstance();
     if (losHit.GetComponent())
     {
-        if (losHit.GetComponent()->GetCollisionObjectType() == COLLISION_PLAYER)
+        if (losHit.GetComponent()->GetCollisionObjectType() == COLLISION_PLAYER && isAgentCloseEnough)
         {
             LoSOnPlayer = true;
             groupManager->UpdatePlayerLKP(playerCharacter->GetActorLocation());
