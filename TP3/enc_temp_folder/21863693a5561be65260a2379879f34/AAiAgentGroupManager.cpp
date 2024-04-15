@@ -259,13 +259,21 @@ void AAiAgentGroupManager::DrawDebugGroup(UWorld *world)
                 FVector head;
                 FRotator rotation;
                 ai->GetPawn()->GetActorEyesViewPoint(head, rotation);
-                DrawDebugSphere(world, head, 30.f, 8, FColor::Purple);
+                DrawDebugSphere(world, head, 30.f, 32, FColor::Purple);
             }
         }
     }
 
     if (m_registeredAgents.Num() > 0)
     {
-        DrawDebugSphere(world, m_playerLKP, 30.f, 8, FColor::Red);
+        DrawDebugSphere(world, m_playerLKP, 30.f, 32, FColor::Red);
+    }
+
+    if (m_CirclePositions.Num() > 0)
+    {
+        for (auto pos : m_CirclePositions)
+        {
+            DrawDebugSphere(world, pos, 30.f, 32, FColor::Green);
+        }
     }
 }
