@@ -10,6 +10,16 @@ AAiAgentGroupManager::AAiAgentGroupManager()
     m_instance = this;
 }
 
+void AAiAgentGroupManager::CheckGroupLOS()
+{
+    for (auto agent : m_registeredAgents) {
+        if (agent->HasLoSOnPlayer) {
+            return;
+		}
+    }
+    Disband();
+}
+
 AAiAgentGroupManager *AAiAgentGroupManager::GetInstance()
 {
     return m_instance;

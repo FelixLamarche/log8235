@@ -20,7 +20,7 @@ public:
 
 	void RegisterAIAgent(ASDTAIController *aiAgent);
 	void UnregisterAIAgent(ASDTAIController *aiAgent);
-
+	void CheckGroupLOS();
 	void UpdatePlayerLKP(FVector lkp);
 	bool AgentAtLKP();
 	FVector GetPlayerLKP();

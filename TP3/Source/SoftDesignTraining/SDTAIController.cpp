@@ -47,7 +47,6 @@ void ASDTAIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ASDTAIController::UpdateLoSOnPlayer()
 {
-    ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
         return;
 
@@ -62,14 +61,14 @@ void ASDTAIController::UpdateLoSOnPlayer()
     bool LoSOnPlayer = false;
     HasLoSOnPlayer = false;
 
-    AiAgentGroupManager* groupManager = AiAgentGroupManager::GetInstance();
+    AAiAgentGroupManager* groupManager = AAiAgentGroupManager::GetInstance();
     if (losHit.GetComponent())
     {
         if (losHit.GetComponent()->GetCollisionObjectType() == COLLISION_PLAYER)
         {
             LoSOnPlayer = true;
             groupManager->UpdatePlayerLKP(playerCharacter->GetActorLocation());
-
+            groupManager->RegisterAIAgent(this);
             TargetLocation = playerCharacter->GetActorLocation();
         }
     }
@@ -314,10 +313,14 @@ void ASDTAIController::Tick(float deltaTime)
 	//	//ShowNavigationPath();
 	//}
 }
-
 void ASDTAIController::AIStateInterrupted()
 {
     StopMovement();
+    AAiAgentGroupManager* groupManager = AAiAgentGroupManager::GetInstance();
+    if (groupManager)
+	{
+		groupManager->UnregisterAIAgent(this);
+	}
     m_ReachedTarget = true;
 }
 

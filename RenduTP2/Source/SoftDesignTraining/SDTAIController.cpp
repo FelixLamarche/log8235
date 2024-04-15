@@ -323,5 +323,7 @@ void ASDTAIController::GetHightestPriorityDetectionHit(const TArray<FHitResult>&
 void ASDTAIController::AIStateInterrupted()
 {
     StopMovement();
+    AAiAgentGroupManager* groupManager = GetGroupManager();
+    groupManager->UnregisterAIAgent(this);
     m_ReachedTarget = true;
 }
