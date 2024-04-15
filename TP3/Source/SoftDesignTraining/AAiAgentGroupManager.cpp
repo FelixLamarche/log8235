@@ -21,6 +21,11 @@ void AAiAgentGroupManager::Destroy()
     m_instance = nullptr;
 }
 
+FVector AAiAgentGroupManager::GetPlayerLKP()
+{
+	return m_playerLKP;
+}
+
 void AAiAgentGroupManager::RegisterAIAgent(ASDTAIController *aiAgent)
 {
     m_registeredAgents.Add(aiAgent);
@@ -200,11 +205,5 @@ void AAiAgentGroupManager::DrawDebugGroup(UWorld *world)
         DrawDebugSphere(world, m_playerLKP, 30.f, 32, FColor::Red);
     }
 
-    if (m_CirclePositions.Num() > 0)
-    {
-        for (auto pos : m_CirclePositions)
-        {
-            DrawDebugSphere(world, pos, 30.f, 32, FColor::Green);
-        }
-    }
+
 }

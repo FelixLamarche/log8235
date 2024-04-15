@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "BTTask_SetFleeLocAsTarget.h"
 #include "SDTAIController.h"
 #include "BehaviorTree/BlackboardComponent.h" 
-#include "BTTask_SetFleeLocAsTarget.h"
 
 EBTNodeResult::Type UBTTask_SetFleeLocAsTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {

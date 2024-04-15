@@ -177,6 +177,7 @@ void ASDTAIController::UpdateLoSOnPlayer()
     }
 }
 
+
 void ASDTAIController::PlayerInteractionLoSUpdate()
 {
     // REMOVE THIS FUNCTION ONCE BEHAVIOUR IS IN THE BEHAVIOUR TREE
@@ -237,7 +238,7 @@ void ASDTAIController::SetBestFleeLocationAsTarget()
     float bestLocationScore = 0.f;
     ASDTFleeLocation* bestFleeLocation = nullptr;
 
-    ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+    //ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
         return;
 

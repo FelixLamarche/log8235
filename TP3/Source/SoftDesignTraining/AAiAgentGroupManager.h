@@ -23,7 +23,7 @@ public:
 
 	void UpdatePlayerLKP(FVector lkp);
 	bool AgentAtLKP();
-
+	FVector GetPlayerLKP();
 	void Disband();
 	FVector CalculateAgentPosition(int i, float radius, float angleBetweenAgents, float agentRadius);
     FVector CalculateOffsetVector(FVector agentPosition, float agentRadius);
@@ -35,10 +35,9 @@ public:
 	void DrawDebugGroup(UWorld *World);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
 	TSet<ASDTAIController *> m_registeredAgents;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = AI)
-	FVector m_playerLKP;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = AI)
 	TArray<FVector> m_CirclePositions;
 private:
+	FVector m_playerLKP;
 	static AAiAgentGroupManager *m_instance;
 };
