@@ -313,6 +313,7 @@ void ASDTAIController::Tick(float deltaTime)
 	//	//ShowNavigationPath();
 	//}
 }
+
 void ASDTAIController::AIStateInterrupted()
 {
     StopMovement();
