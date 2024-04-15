@@ -79,6 +79,10 @@ void ASDTAIController::UpdateLoSOnPlayer()
         TargetLocation = groupManager->GetPlayerLKP();
     }
 
+    if (IsInPursuitGroup) {
+        TargetLocation = positioning;
+    }
+
     //bool justObtainedLoS = LoSOnPlayer && (LoSOnPlayer != HasLoSOnPlayer);
     //bool justLostLoS = !LoSOnPlayer && HasLoSOnPlayer;
     //if (justObtainedLoS)
