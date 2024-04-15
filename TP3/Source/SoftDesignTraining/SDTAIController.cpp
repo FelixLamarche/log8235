@@ -47,6 +47,8 @@ void ASDTAIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ASDTAIController::UpdateLoSOnPlayer()
 {
+    TRACE_CPUPROFILER_EVENT_SCOPE(ASDTAIController::UpdateLoSOnPlayer);
+
     if (!playerCharacter)
         return;
 
@@ -317,6 +319,7 @@ void ASDTAIController::Tick(float deltaTime)
 		ShowNavigationPath();
 	}
 }
+
 void ASDTAIController::AIStateInterrupted()
 {
     StopMovement();

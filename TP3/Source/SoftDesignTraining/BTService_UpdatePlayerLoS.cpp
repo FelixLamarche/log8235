@@ -15,7 +15,7 @@ void UBTService_UpdatePlayerLoS::TickNode(UBehaviorTreeComponent& OwnerComp, uin
 {
     if (ASDTAIController* aiController = Cast<ASDTAIController>(OwnerComp.GetAIOwner()))
     {
-        aiController->UpdateLoSOnPlayer();
+        //aiController->UpdateLoSOnPlayer();
 
         UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 

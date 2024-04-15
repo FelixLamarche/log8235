@@ -82,6 +82,8 @@ void LoadBalancerManager::TickWorld(UWorld* World, ELevelTick TickType, float De
 	// Temps écoulé
 	double ElapsedTime = 0;
 
+	int32 nbAgentChecked = 0;
+
 	// Affichage des PNJ dans le group de poursuite
 	AAiAgentGroupManager* groupManager = AAiAgentGroupManager::GetInstance();
 	if (groupManager)
@@ -102,11 +104,18 @@ void LoadBalancerManager::TickWorld(UWorld* World, ELevelTick TickType, float De
 		}
 
 		m_UpdateIndex++;
+		nbAgentChecked++;
 
 		// Si on a parcouru tous les PNJ, on recommence
 		if (m_UpdateIndex >= m_NPCList.Num())
 		{
 			m_UpdateIndex = 0;
+		}
+
+		// Si on a parcouru tous les PNJ, on sort de la boucle
+		if (nbAgentChecked >= m_NPCList.Num())
+		{
+			break;
 		}
 
 		// Mise à jour du temps écoulé
