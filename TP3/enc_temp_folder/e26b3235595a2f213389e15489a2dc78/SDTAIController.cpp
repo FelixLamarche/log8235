@@ -79,10 +79,6 @@ void ASDTAIController::UpdateLoSOnPlayer()
         TargetLocation = groupManager->GetPlayerLKP();
     }
 
-    if (IsInPursuitGroup) {
-        TargetLocation = positioning;
-    }
-
     //bool justObtainedLoS = LoSOnPlayer && (LoSOnPlayer != HasLoSOnPlayer);
     //bool justLostLoS = !LoSOnPlayer && HasLoSOnPlayer;
     //if (justObtainedLoS)
@@ -307,12 +303,16 @@ void ASDTAIController::Tick(float deltaTime)
         1
     );
 
-     if (IsActorOnCamera) // 'else if' added to avoid calling ShowNavigationPath() when the actor is not on camera
-    {
-		ShowNavigationPath();
-	}
+    //ShowNavigationPath();
+ //   if (m_ReachedTarget)
+ //   {
+	//	//GoToBestTarget(deltaTime);
+	//}
+ //   else if (IsActorOnCamera) // 'else if' added to avoid calling ShowNavigationPath() when the actor is not on camera
+ //   {
+	//	//ShowNavigationPath();
+	//}
 }
-
 void ASDTAIController::AIStateInterrupted()
 {
     StopMovement();
