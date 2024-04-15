@@ -68,8 +68,6 @@ void ASDTAIController::UpdateLoSOnPlayer()
     AAiAgentGroupManager* groupManager = AAiAgentGroupManager::GetInstance();
     if (losHit.GetComponent() && losHit.GetComponent()->GetCollisionObjectType() == COLLISION_PLAYER && isAgentCloseEnough)
     {
-        /*GetBlackboardComponent()->
-        behaviorTree->GetBlackboardComponent()*/
         LoSOnPlayer = true;
         groupManager->UpdatePlayerLKP(playerCharacter->GetActorLocation());
         groupManager->RegisterAIAgent(this);
@@ -84,13 +82,11 @@ void ASDTAIController::UpdateLoSOnPlayer()
         if (tryToCatchPlayer)
         {
 			TargetLocation = playerCharacter->GetActorLocation();
-            GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Red, FString::Printf(TEXT("Catching player at %s"), *TargetLocation.ToString()));
         }
         else if (groupManager->HasGroupLoSOnPlayer())
         {
             groupManager->RegisterAIAgent(this);
             TargetLocation = positioning;
-            GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Red, FString::Printf(TEXT("Positioning player at %s"), *TargetLocation.ToString()));
         }
         else
         {
@@ -98,12 +94,7 @@ void ASDTAIController::UpdateLoSOnPlayer()
             if (FVector::Dist(selfLocation, TargetLocation) < 100.0f)
             {
                 groupManager->CheckIfDisband();
-                GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Red, FString::Printf(TEXT("Check disband at %s"), *TargetLocation.ToString()));
 			}
-            else
-            {
-                GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Red, FString::Printf(TEXT("player LKP at %s"), *TargetLocation.ToString()));
-            }
         }
     }
 
@@ -152,7 +143,6 @@ void ASDTAIController::SetBestFleeLocationAsTarget()
     float bestLocationScore = 0.f;
     ASDTFleeLocation* bestFleeLocation = nullptr;
 
-    //ACharacter* playerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
     if (!playerCharacter)
         return;
 
@@ -320,7 +310,7 @@ void ASDTAIController::Tick(float deltaTime)
         1
     );
 
-     if (IsActorOnCamera) // 'else if' added to avoid calling ShowNavigationPath() when the actor is not on camera
+    if (IsActorOnCamera)
     {
 		ShowNavigationPath();
 	}
