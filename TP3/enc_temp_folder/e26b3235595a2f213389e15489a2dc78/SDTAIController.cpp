@@ -304,14 +304,14 @@ void ASDTAIController::Tick(float deltaTime)
     );
 
     //ShowNavigationPath();
-    // if (m_ReachedTarget)
-    // {
+ //   if (m_ReachedTarget)
+ //   {
 	//	//GoToBestTarget(deltaTime);
-	// }
-     if (IsActorOnCamera) // 'else if' added to avoid calling ShowNavigationPath() when the actor is not on camera
-    {
-		ShowNavigationPath();
-	}
+	//}
+ //   else if (IsActorOnCamera) // 'else if' added to avoid calling ShowNavigationPath() when the actor is not on camera
+ //   {
+	//	//ShowNavigationPath();
+	//}
 }
 void ASDTAIController::AIStateInterrupted()
 {
