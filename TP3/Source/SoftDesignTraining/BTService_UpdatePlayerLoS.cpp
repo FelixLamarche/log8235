@@ -23,11 +23,11 @@ void UBTService_UpdatePlayerLoS::TickNode(UBehaviorTreeComponent& OwnerComp, uin
         const bool isInPursuitGroup = aiController->IsInPursuitGroup;
         OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(hasLoSOnPlayerBBKey, hasLoSOnPlayer);
 
-        const FName& targetLocationBBKey = aiController->GetBBKeyTargetLocation();
-        OwnerComp.GetBlackboardComponent()->SetValueAsVector(targetLocationBBKey, aiController->TargetLocation);
         if (hasLoSOnPlayer || isInPursuitGroup)
         {
             //write to bb the position of the target
+            const FName& targetLocationBBKey = aiController->GetBBKeyTargetLocation();
+            OwnerComp.GetBlackboardComponent()->SetValueAsVector(targetLocationBBKey, aiController->TargetLocation);
         }
     }
 }
