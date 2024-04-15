@@ -86,11 +86,6 @@ void ASDTAIController::UpdateLoSOnPlayer()
 
     if (IsInPursuitGroup) {
         TargetLocation = positioning;
-        auto location = GetPawn()->GetActorLocation();
-        if ( FVector::Dist(location, playerLocation) <= 300.f)
-        {
-			TargetLocation = playerCharacter->GetActorLocation();
-		}
     }
 
     //bool justObtainedLoS = LoSOnPlayer && (LoSOnPlayer != HasLoSOnPlayer);
