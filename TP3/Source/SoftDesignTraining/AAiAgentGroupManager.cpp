@@ -157,7 +157,6 @@ FVector AAiAgentGroupManager::ProjectToNavigation(FVector agentPosition, float a
 
 void AAiAgentGroupManager::UnregisterAIAgent(ASDTAIController *aiAgent)
 {
-    m_registeredAgents.Remove(aiAgent);
     aiAgent->IsInPursuitGroup = false;
     aiAgent->positioning = FVector::ZeroVector;
     // Update tick rate of the agent
@@ -186,8 +185,9 @@ void AAiAgentGroupManager::Disband()
 {
     for (auto agent : m_registeredAgents)
     {
-        UnregisterAIAgent(agent);
-    }
+		UnregisterAIAgent(agent);
+	}
+    m_registeredAgents.Empty();
 }
 
 void AAiAgentGroupManager::DrawDebugGroup(UWorld *world)

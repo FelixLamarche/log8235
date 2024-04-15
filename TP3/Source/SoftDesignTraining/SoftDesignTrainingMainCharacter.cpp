@@ -5,7 +5,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-
+#include "AAiAgentGroupManager.h"
 #include "LoadBalancerManager.h"
 
 ASoftDesignTrainingMainCharacter::ASoftDesignTrainingMainCharacter()
@@ -56,7 +56,11 @@ void ASoftDesignTrainingMainCharacter::OnBeginOverlap(UPrimitiveComponent* Overl
     if (ASoftDesignTrainingCharacter* character = Cast<ASoftDesignTrainingCharacter>(OtherActor))
     {
         if (!IsPoweredUp())
-            SetActorLocation(m_StartingPosition);
+        {
+             AAiAgentGroupManager* groupManager = AAiAgentGroupManager::GetInstance();
+             SetActorLocation(m_StartingPosition);
+             groupManager->Disband();
+        }
     }
 }
 
