@@ -97,7 +97,7 @@ void LoadBalancerManager::TickWorld(UWorld* World, ELevelTick TickType, float De
 		if (ASDTAIController* ai = Cast<ASDTAIController>(m_NPCList[m_UpdateIndex]))
 		{	
 			// Update de l'interaction avec le joueur
-			ai->UpdatePlayerInteraction(DeltaSeconds);
+			ai->UpdateLoSOnPlayer();
 
 		}
 

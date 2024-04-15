@@ -125,6 +125,7 @@ void ASDTAIController::SetClosestCollectibleAsTarget()
     // Move to the collectible
     if (closestCollectible)
     {
+        DrawDebugString(GetWorld(), FVector(0.f, 0.f, 5.f), TEXT("Collect"), GetPawn(), FColor::Orange, 1.f, false);
         TargetLocation = closestCollectible->GetActorLocation();
 	}
 }
@@ -167,6 +168,7 @@ void ASDTAIController::SetBestFleeLocationAsTarget()
 
     if (bestFleeLocation)
     {
+        DrawDebugString(GetWorld(), FVector(0.f, 0.f, 5.f), TEXT("Flee"), GetPawn(), FColor::Orange, 1.f, false);
         TargetLocation = bestFleeLocation->GetActorLocation();
     }
 }
@@ -288,6 +290,7 @@ void ASDTAIController::Tick(float deltaTime)
 	}
 
 
+    //ShowNavigationPath();
  //   if (m_ReachedTarget)
  //   {
 	//	//GoToBestTarget(deltaTime);
@@ -298,6 +301,11 @@ void ASDTAIController::Tick(float deltaTime)
 	//}
 }
 
+void ASDTAIController::AIStateInterrupted()
+{
+    StopMovement();
+    m_ReachedTarget = true;
+}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -537,11 +545,7 @@ void ASDTAIController::Tick(float deltaTime)
 //    return losHit.GetActor() == nullptr;
 //}
 //
-//void ASDTAIController::AIStateInterrupted()
-//{
-//    StopMovement();
-//    m_ReachedTarget = true;
-//}
+
 //
 //
 //void ASDTAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
