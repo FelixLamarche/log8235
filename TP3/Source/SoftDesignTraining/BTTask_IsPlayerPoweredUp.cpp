@@ -2,14 +2,19 @@
 
 
 #include "BTTask_IsPlayerPoweredUp.h"
+#include "SDTAIController.h"
+#include "BehaviorTree/BlackboardComponent.h" 
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
 #include "SDTUtils.h"
 
 EBTNodeResult::Type UBTTask_IsPlayerPoweredUp::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UWorld* world = GetWorld();
 
-	if(SDTUtils::IsPlayerPoweredUp(world))
+	ASDTAIController* aiController = Cast<ASDTAIController>(OwnerComp.GetAIOwner());
+	if(SDTUtils::IsPlayerPoweredUp(world) && aiController)
 	{
+		OwnerComp.GetBlackboardComponent()->SetValueAsBool(aiController->GetBBKeyIsPlayerPoweredUp(), true);
 		return EBTNodeResult::Succeeded;
 	}
 

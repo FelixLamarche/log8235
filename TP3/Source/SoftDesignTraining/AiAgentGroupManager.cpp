@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "AAiAgentGroupManager.h"
+#include "AiAgentGroupManager.h"
 #include <NavigationSystem.h>
 
 AAiAgentGroupManager *AAiAgentGroupManager::m_instance;
@@ -10,14 +10,24 @@ AAiAgentGroupManager::AAiAgentGroupManager()
     m_instance = this;
 }
 
-void AAiAgentGroupManager::CheckGroupLOS()
+bool AAiAgentGroupManager::HasGroupLoSOnPlayer() const
 {
-    for (auto agent : m_registeredAgents) {
-        if (agent->HasLoSOnPlayer) {
-            return;
+    for (auto agent : m_registeredAgents)
+    {
+        if (agent->HasLoSOnPlayer)
+        {
+			return true;
 		}
+	}
+	return false;
+}
+
+void AAiAgentGroupManager::CheckIfDisband()
+{
+    if (!HasGroupLoSOnPlayer())
+    {
+        Disband();
     }
-    Disband();
 }
 
 AAiAgentGroupManager *AAiAgentGroupManager::GetInstance()
@@ -38,6 +48,9 @@ FVector AAiAgentGroupManager::GetPlayerLKP()
 
 void AAiAgentGroupManager::RegisterAIAgent(ASDTAIController *aiAgent)
 {
+    if (!aiAgent)
+        return;
+
     m_registeredAgents.Add(aiAgent);
     aiAgent->IsInPursuitGroup = true;
     float angleBetweenAgents = 2 * PI / m_registeredAgents.Num();

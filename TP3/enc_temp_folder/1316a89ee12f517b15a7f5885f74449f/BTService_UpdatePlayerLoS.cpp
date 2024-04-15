@@ -20,14 +20,13 @@ void UBTService_UpdatePlayerLoS::TickNode(UBehaviorTreeComponent& OwnerComp, uin
         //write to bb that the player is seen
         const FName& hasLoSOnPlayerBBKey = aiController->GetBBKeyHasLoSOnPlayer();
         const bool hasLoSOnPlayer = aiController->HasLoSOnPlayer;
-        const bool isInPursuitGroup = aiController->IsInPursuitGroup;
         OwnerComp.GetBlackboardComponent()->SetValue<UBlackboardKeyType_Bool>(hasLoSOnPlayerBBKey, hasLoSOnPlayer);
 
-        const FName& targetLocationBBKey = aiController->GetBBKeyTargetLocation();
-        OwnerComp.GetBlackboardComponent()->SetValueAsVector(targetLocationBBKey, aiController->TargetLocation);
-        if (hasLoSOnPlayer || isInPursuitGroup)
+        if (hasLoSOnPlayer)
         {
             //write to bb the position of the target
+            const FName& targetLocationBBKey = aiController->GetBBKeyTargetLocation();
+            OwnerComp.GetBlackboardComponent()->SetValueAsVector(targetLocationBBKey, aiController->TargetLocation);
         }
     }
 }

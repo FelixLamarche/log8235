@@ -5,7 +5,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "AAiAgentGroupManager.h"
+#include "AiAgentGroupManager.h"
 #include "LoadBalancerManager.h"
 
 ASoftDesignTrainingMainCharacter::ASoftDesignTrainingMainCharacter()

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "SDTAIController.h"
 #include "GameFramework/Actor.h"
-#include "AAiAgentGroupManager.generated.h"
+#include "AiAgentGroupManager.generated.h"
 
 UCLASS()
 class SOFTDESIGNTRAINING_API AAiAgentGroupManager : public AActor
@@ -20,7 +20,8 @@ public:
 
 	void RegisterAIAgent(ASDTAIController *aiAgent);
 	void UnregisterAIAgent(ASDTAIController *aiAgent);
-	void CheckGroupLOS();
+	void CheckIfDisband();
+	bool HasGroupLoSOnPlayer() const;
 	void UpdatePlayerLKP(FVector lkp);
 	bool AgentAtLKP();
 	FVector GetPlayerLKP();

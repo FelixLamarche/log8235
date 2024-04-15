@@ -84,13 +84,11 @@ void ASDTAIController::UpdateLoSOnPlayer()
         if (tryToCatchPlayer)
         {
 			TargetLocation = playerCharacter->GetActorLocation();
-            GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Red, FString::Printf(TEXT("Catching player at %s"), *TargetLocation.ToString()));
         }
         else if (groupManager->HasGroupLoSOnPlayer())
         {
             groupManager->RegisterAIAgent(this);
             TargetLocation = positioning;
-            GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Red, FString::Printf(TEXT("Positioning player at %s"), *TargetLocation.ToString()));
         }
         else
         {
@@ -98,12 +96,7 @@ void ASDTAIController::UpdateLoSOnPlayer()
             if (FVector::Dist(selfLocation, TargetLocation) < 100.0f)
             {
                 groupManager->CheckIfDisband();
-                GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Red, FString::Printf(TEXT("Check disband at %s"), *TargetLocation.ToString()));
 			}
-            else
-            {
-                GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Red, FString::Printf(TEXT("player LKP at %s"), *TargetLocation.ToString()));
-            }
         }
     }
 

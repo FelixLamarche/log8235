@@ -83,7 +83,6 @@ public:
     const FName& GetBBKeyHasLoSOnPlayer() const { return m_BBKeyHasLoSOnPlayer; }
     const FName& GetBBKeyTargetLocation() const { return m_BBKeyTargetLocation; }
     const FName& GetBBKeyIsInPursuitGroup() const { return m_BBKeyIsInPursuitGroup; }
-    const FName& GetBBKeyIsPlayerPoweredUp() const { return m_BBKeyIsPlayerPoweredUp; }
 
 protected:
 
@@ -127,5 +126,4 @@ private:
     FName m_BBKeyHasLoSOnPlayer = TEXT("HasLoSOnPlayer");
     FName m_BBKeyTargetLocation = TEXT("TargetLocation");
     FName m_BBKeyIsInPursuitGroup = TEXT("IsInPursuitGroup");
-    FName m_BBKeyIsPlayerPoweredUp = TEXT("IsPlayerPoweredUp");
 };

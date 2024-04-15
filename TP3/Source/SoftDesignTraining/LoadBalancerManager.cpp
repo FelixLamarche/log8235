@@ -6,7 +6,7 @@
 #include "SDTUtils.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
-#include "AAiAgentGroupManager.h"
+#include "AiAgentGroupManager.h"
 
 LoadBalancerManager* LoadBalancerManager::m_Instance;
 FDelegateHandle LoadBalancerManager::m_DelegateHandle;
@@ -102,11 +102,6 @@ void LoadBalancerManager::TickWorld(UWorld* World, ELevelTick TickType, float De
 		{	
 			// Update de l'interaction avec le joueur
 			ai->UpdateLoSOnPlayer();
-
-			/*UBehaviorTreeComponent* comp = (UBehaviorTreeComponent *) ai->GetComponentByClass(UBehaviorTreeComponent::StaticClass());
-			comp->ScheduleNextTick(FLT_MAX);*/
-			//comp->GetBlackboardComponent()->TickComponent(DeltaSeconds, ELevelTick::LEVELTICK_All, NULL);
-
 		}
 
 		m_UpdateIndex++;
